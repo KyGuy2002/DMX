@@ -6,23 +6,40 @@
 // Network settings
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
-EthernetUDP Udp;
-Artnet artnet;
+ArtnetReceiver artnet;
+uint16_t universe1 = 0;
 
 DmxOutput dmx;
 uint8_t universe[512 + 1];
 
-// Callback for incoming DMX data
-void onDmxFrame(uint16_t uniNo, uint16_t length, uint8_t sequence, uint8_t* data, IPAddress remoteIP) {
+void callback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
 
+  // Serial1.print("Received DMX data");
+  // for (uint16_t i = 0; i < 10; i++) {
+  //   Serial1.print(" ");
+  //   Serial1.print(data[i]);
+  // }
+  // Serial1.println();
+  
   // Shift DMX data by one position in the universe array
   universe[0] = 0; // DMX start code
-  memcpy(universe + 1, data, length);
+  memcpy(universe + 1, data, size);
 
 }
 
+// Callback for incoming DMX data
+// void onDmxFrame(uint16_t uniNo, uint16_t length, uint8_t sequence, uint8_t* data, IPAddress remoteIP) {
+
+//   // Shift DMX data by one position in the universe array
+//   universe[0] = 0; // DMX start code
+//   memcpy(universe + 1, data, length);
+
+// }
+
 void core1_entry() {
   while (true) {
+
+    Serial1.println(universe[1]);
     
     dmx.write(universe, 512);
 
@@ -46,8 +63,12 @@ void setup() {
     }
   }
 
+  artnet.setArtPollReplyConfigLongName("Project DMX Helper");
+  artnet.setArtPollReplyConfigShortName("Project DMX Helper");
+
   artnet.begin();
-  artnet.setArtDmxCallback(onDmxFrame);
+
+  artnet.subscribeArtDmxUniverse(universe1, callback);
 
   dmx.begin(2);
 
@@ -55,5 +76,5 @@ void setup() {
 }
 
 void loop() {
-  artnet.read();
+  artnet.parse();
 }
