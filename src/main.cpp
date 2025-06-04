@@ -1,57 +1,84 @@
+#include "setup/setupSD.h"
+#include "setup/setupEthernet.h"
+#include "setup/setupArtnet.h"
+
 #include <Arduino.h>
-#include <SPI.h>
+#include <Ethernet.h>
+#include <Artnet.h>
+#include <DmxOutput.h>
+#include <pico/multicore.h>
 #include <SD.h>
 
 
-String data;
+const int DMX_PIN = 2; // Pin for DMX PIO data
+
+
+#define DMXS_MAGIC "PROJECTDMX-DMXSHOW"
+#define DMXS_VERSION 1
+
+
+EthernetUDP udp;
+ArtnetReceiver artnet;
+DmxOutput dmx;
+
+uint8_t currentDMXState[512];
+
+
+
+void artnetCallback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
+    Serial1.println("Received Art-Net DMX data");
+
+    // Update the current DMX state
+    memcpy(currentDMXState, data, size);
+
+}
+
+
+void writeDmx() {
+
+    uint8_t output[512 + 1];
+
+    // Copy and shift array once (dmx protocol requires a start code)
+    memcpy(output + 1, currentDMXState, 512);
+    
+    dmx.write(output, 512);
+    while (dmx.busy()) {}
+
+}
+
 
 
 void setup() {
-  Serial1.begin(115200);
-  Serial1.println("Starting up...");
-  
-  SPI1.setSCK(14);  // CLK
-  SPI1.setTX(15);  // MOSI
-  SPI1.setRX(12);  // MISO
-
-  Serial1.println("first part complete!");
-
-  if (!SD.begin(13, SPI1)) { // CS
-    Serial1.println("SD init failed!");
-    while (1) {
-      Serial1.println("SD init failed!");
-      delay(1000);  // wait for a second
-    }
-  }
-  Serial1.println("SD init successful.");
-
-  File file = SD.open("test.txt");
-
-  if (!file) {
-    while (1) {
-      Serial1.println("Failed to open file!");
-      delay(1000);  // wait for a second
-    }
-  }
-
-  while (file.available()) {
-    String line = file.readStringUntil('\n');  // read line from file
-    line.trim();  // remove \r or trailing whitespace
+    Serial1.begin(115200);
+    Serial1.println("Starting ProjectDMX LumaKit...");
 
 
-  }
+    // Initialize connections
+    setupEthernet();  // Initialize Ethernet
+    setupSd();  // Initialize SD card
+    setupArtnet(artnet);  // Initialize Art-Net
+    artnet.subscribeArtDmxUniverse(0, artnetCallback);
+    artnet.subscribeArtDmxUniverse(1, artnetCallback);
+    dmx.begin(DMX_PIN);
 
-  file.close();
-  
+
+    Serial1.println("Initialization complete. Starting DMX output...");
+
+
+    // Start second core loop
+    multicore_launch_core1([]() {
+        while (true) {
+            loop1();
+        }
+    });
 }
 
+
 void loop() {
-  
+  artnet.parse();
+}
 
-  Serial1.print("Data from SD: ");
-  Serial1.println(data);  // print the data read from the file
-
-  delay(1000);  // wait for a second before the next read
-
-
+void loop1() {
+    writeDmx();
+    delay(1);
 }
