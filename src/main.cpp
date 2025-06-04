@@ -1,80 +1,57 @@
-#include <Ethernet.h>
-#include <Artnet.h>
-#include <DmxOutput.h>
-#include <pico/multicore.h>
+#include <Arduino.h>
+#include <SPI.h>
+#include <SD.h>
 
-// Network settings
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
-ArtnetReceiver artnet;
-uint16_t universe1 = 0;
+String data;
 
-DmxOutput dmx;
-uint8_t universe[512 + 1];
-
-void callback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
-
-  // Serial1.print("Received DMX data");
-  // for (uint16_t i = 0; i < 10; i++) {
-  //   Serial1.print(" ");
-  //   Serial1.print(data[i]);
-  // }
-  // Serial1.println();
-  
-  // Shift DMX data by one position in the universe array
-  universe[0] = 0; // DMX start code
-  memcpy(universe + 1, data, size);
-
-}
-
-// Callback for incoming DMX data
-// void onDmxFrame(uint16_t uniNo, uint16_t length, uint8_t sequence, uint8_t* data, IPAddress remoteIP) {
-
-//   // Shift DMX data by one position in the universe array
-//   universe[0] = 0; // DMX start code
-//   memcpy(universe + 1, data, length);
-
-// }
-
-void core1_entry() {
-  while (true) {
-
-    Serial1.println(universe[1]);
-    
-    dmx.write(universe, 512);
-
-    while (dmx.busy()) {}
-
-    delay(1);
-
-  }
-}
 
 void setup() {
   Serial1.begin(115200);
-  Serial1.println("Starting Art-Net Receiver...");
-  Ethernet.init(17);
+  Serial1.println("Starting up...");
   
-  if (Ethernet.begin(mac) == 0) {
-    Serial1.println("!! Failed to configure Ethernet using DHCP");
-    while (true) {
-      Serial1.println("!! STOPPED: Failed to configure Ethernet using DHCP");
-      delay(1000);
+  SPI1.setSCK(14);  // CLK
+  SPI1.setTX(15);  // MOSI
+  SPI1.setRX(12);  // MISO
+
+  Serial1.println("first part complete!");
+
+  if (!SD.begin(13, SPI1)) { // CS
+    Serial1.println("SD init failed!");
+    while (1) {
+      Serial1.println("SD init failed!");
+      delay(1000);  // wait for a second
+    }
+  }
+  Serial1.println("SD init successful.");
+
+  File file = SD.open("test.txt");
+
+  if (!file) {
+    while (1) {
+      Serial1.println("Failed to open file!");
+      delay(1000);  // wait for a second
     }
   }
 
-  artnet.setArtPollReplyConfigLongName("Project DMX Helper");
-  artnet.setArtPollReplyConfigShortName("Project DMX Helper");
+  while (file.available()) {
+    String line = file.readStringUntil('\n');  // read line from file
+    line.trim();  // remove \r or trailing whitespace
 
-  artnet.begin();
 
-  artnet.subscribeArtDmxUniverse(universe1, callback);
+  }
 
-  dmx.begin(2);
-
-  multicore_launch_core1(core1_entry);
+  file.close();
+  
 }
 
 void loop() {
-  artnet.parse();
+  
+
+  Serial1.print("Data from SD: ");
+  Serial1.println(data);  // print the data read from the file
+
+  delay(1000);  // wait for a second before the next read
+
+
 }
