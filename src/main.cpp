@@ -10,6 +10,9 @@
 #include <SD.h>
 
 
+void loop2();
+
+
 const int DMX_PIN = 2; // Pin for DMX PIO data
 
 
@@ -26,7 +29,6 @@ uint8_t currentDMXState[512];
 
 
 void artnetCallback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
-    Serial1.println("Received Art-Net DMX data");
 
     // Update the current DMX state
     memcpy(currentDMXState, data, size);
@@ -58,7 +60,6 @@ void setup() {
     setupSd();  // Initialize SD card
     setupArtnet(artnet);  // Initialize Art-Net
     artnet.subscribeArtDmxUniverse(0, artnetCallback);
-    artnet.subscribeArtDmxUniverse(1, artnetCallback);
     dmx.begin(DMX_PIN);
 
 
@@ -68,7 +69,7 @@ void setup() {
     // Start second core loop
     multicore_launch_core1([]() {
         while (true) {
-            loop1();
+            loop2();
         }
     });
 }
@@ -78,7 +79,8 @@ void loop() {
   artnet.parse();
 }
 
-void loop1() {
+// NOTE: This function cannot be named loop1 because it conflicts with a USB function!
+void loop2() {
     writeDmx();
     delay(1);
 }

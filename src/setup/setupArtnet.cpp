@@ -5,8 +5,8 @@
 
 void setupArtnet(ArtnetReceiver &artnet) {
 
-    artnet.setArtPollReplyConfigLongName("Project DMX Helper");
-    artnet.setArtPollReplyConfigShortName("Project DMX Helper");
+    artnet.setArtPollReplyConfigLongName("ProjectDMX LumaKit - Lighting Swiss Army Knife");
+    artnet.setArtPollReplyConfigShortName("ProjectDMX LumaKit");
 
     artnet.begin();
 
