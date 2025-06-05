@@ -13,11 +13,13 @@
 #include <chrono>
 
 
+// Mode: RECORD or Play
+const bool RECORD = false;
+
+
 File dmxFile;
 
 #define MAX_UNIVERSES 2 // Maximum number of universes supported
-
-const String magic = "PROJECT-DMX-DMXS"; // 16 bytes (ascii)
 
 const int DMX_PIN = 2; // Pin for DMX PIO data
 
@@ -60,6 +62,34 @@ void artnetCallback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &me
 }
 
 
+void pushDmxFrame() {
+    Serial1.println("Pushing DMX frame...");
+
+
+    readDMXFrameDelta(dmxFile, prev, curr, MAX_UNIVERSES); // Does nothing at end of file
+    // file.seek(0);
+
+    // Push the DMX frame to the output
+    for (uint16_t u = 0; u < MAX_UNIVERSES; u++) {
+
+        uint8_t output[512 + 1];
+
+        // Copy and shift array once (dmx protocol requires a start code)
+        memcpy(output + 1, curr[u], 512);
+
+        dmx.write(output, 512);
+    }
+
+    while (dmx.busy()) {
+        // Wait for the DMX frame to be sent
+    }
+
+    // delay(1000/44);  // Wait for the next frame (44Hz)
+
+
+}
+
+
 
 
 
@@ -69,53 +99,36 @@ void setup() {
     Serial1.println("Starting ProjectDMX LumaKit...");
 
     // Initialize connections
-    setupEthernet();  // Initialize Ethernet
+    if (RECORD) setupEthernet();  // Initialize Ethernet
     setupSd();  // Initialize SD card
-    setupArtnet(artnet);  // Initialize Art-Net
-    artnet.subscribeArtDmxUniverse(0, artnetCallback);
-    dmx.begin(DMX_PIN);
+    if (RECORD) setupArtnet(artnet);  // Initialize Art-Net
+    if (RECORD) artnet.subscribeArtDmxUniverse(0, artnetCallback);
+    if (!RECORD) dmx.begin(DMX_PIN);
 
     String name = "test2.dmxs";
-    if (SD.exists(name)) SD.remove(name);  // Deletes the old file
+    if (RECORD && SD.exists(name)) SD.remove(name);  // Deletes the old file
 
-    dmxFile = SD.open(name, FILE_WRITE);
+    dmxFile = SD.open(name, (RECORD ? FILE_WRITE : FILE_READ));
 
 
     if (!dmxFile) {
         while (1) {
-            Serial1.println("Failed to create DMX file");
+            Serial1.println("Failed to read/write DMX file!");
             delay(1000);  // Wait
         }
     }
 
 
-
-    dmxFile.print(magic); // 16 bytes
-
-    // Version: 1
-    writeUInt8(dmxFile, 1);
-
-    // Universes: 1
-    writeUInt8(dmxFile, 1);
-
-    // Duration seconds: 0 (Placeholder)
-    writeUInt16(dmxFile, 6*60*60); // 6hrs in seconds
-
-    // Reserved: 12 bytes of 0
-    for (int i = 0; i < 12; ++i) {
-        writeUInt8(dmxFile, 0);
-    }
+    if (RECORD) writeFileHeader(dmxFile, name, MAX_UNIVERSES);  // Write file header
+    if (RECORD) dmxFile.flush();
 
 
-
-    dmxFile.flush();
-    Serial1.println("Started Complete!");
-
-
+    Serial1.println("Startup Complete!");
 
 }
 
 
 void loop() {
-    artnet.parse();
+    if (RECORD) artnet.parse();
+    if (!RECORD) pushDmxFrame();
 }
