@@ -1,0 +1,43 @@
+#include <Arduino.h>
+#include "DmxInput.h"
+DmxInput dmxInput;
+
+#define START_CHANNEL 1
+#define NUM_CHANNELS 3
+
+volatile uint8_t buffer[DMXINPUT_BUFFER_SIZE(START_CHANNEL, NUM_CHANNELS)];
+
+void setup()
+{
+    // Setup our DMX Input to read on GPIO 18, from channel 1 to 3
+    dmxInput.begin(18, START_CHANNEL, NUM_CHANNELS);
+    dmxInput.read_async(buffer);
+
+    // Setup the onboard LED so that we can blink when we receives packets
+    pinMode(LED_BUILTIN, OUTPUT);
+
+    Serial1.begin(115200);
+    Serial1.println("DMX Input Example");
+}
+
+void loop()
+{
+    delay(30);
+
+    if(millis() > 100+dmxInput.latest_packet_timestamp()) {
+        Serial1.println("no data!");
+        return;
+    }
+    // Print the DMX channels
+    Serial1.print("Received packet: ");
+    for (uint i = 0; i < sizeof(buffer); i++)
+    {
+        Serial1.print(buffer[i]);
+        Serial1.print(", ");
+    }
+    Serial1.println("");
+
+    // Blink the LED to indicate that a packet was received
+
+    analogWrite(LED_BUILTIN, buffer[1]);
+}

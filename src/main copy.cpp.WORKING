@@ -1,0 +1,79 @@
+#include <Arduino.h>
+#include "DmxInput.h"
+#include <Adafruit_NeoPixel.h>
+
+#define STRIP_PIN 17  // GPIO pin connected to MOSFET gate
+
+// How many NeoPixels are attached to the Arduino?
+#define LED_COUNT 10
+#define LED_START 2
+DmxInput dmxInput;
+
+#define START_CHANNEL 1
+#define NUM_CHANNELS 4
+
+Adafruit_NeoPixel strip(LED_COUNT, STRIP_PIN, NEO_GRB + NEO_KHZ800);
+
+volatile uint8_t buffer[DMXINPUT_BUFFER_SIZE(START_CHANNEL, NUM_CHANNELS)];
+
+// Shared data between cores
+volatile uint8_t neoPixel_r = 0;
+volatile uint8_t neoPixel_g = 0;
+volatile uint8_t neoPixel_b = 0;
+volatile bool neoPixel_update = false;
+
+// Board: Raspberry Pi Pico (RP2040) — Earle Philhower core
+// MOSFET gate on GP15 (pin 20 on Pico)
+const int LED_PIN = 15; 
+
+// Choose a human-invisible PWM frequency
+const uint32_t PWM_HZ = 5000;      // 5 kHz
+const uint16_t PWM_RES = 65535;    // 16-bit range for smooth fades
+
+
+void setup() {
+
+    strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+  strip.show();            // Turn OFF all pixels ASAP
+  strip.setBrightness(255); // Set BRIGHTNESS to about 1/5 (max = 255)
+
+    // Setup our DMX Input to read on GPIO 18, from channel 1 to 3
+    dmxInput.begin(18, START_CHANNEL, NUM_CHANNELS);
+    dmxInput.read_async(buffer);
+
+    Serial1.begin(115200);
+    delay(1000);
+    Serial1.println("DMX Input Example");
+
+    pinMode(LED_PIN, OUTPUT);
+    analogWriteFreq(PWM_HZ);
+    analogWriteRange(PWM_RES);
+  
+}
+
+void loop() {
+
+    if(millis() > 100+dmxInput.latest_packet_timestamp()) {
+        Serial1.println("no data!");
+        return;
+    }
+    // Print the DMX channels
+    Serial1.print("Received packet: ");
+    for (uint i = 0; i < sizeof(buffer); i++)
+    {
+        Serial1.print(buffer[i]);
+        Serial1.print(", ");
+    }
+    Serial1.println("");
+
+    // Blink the LED to indicate that a packet was received
+    uint16_t duty = (uint16_t)(PWM_RES * (buffer[1] / 255.0f));
+    analogWrite(LED_PIN, duty);
+
+    // Update NeoPixels less frequently to avoid interfering with DMX
+    if (millis() - lastNeoPixelUpdate >= NEOPIXEL_UPDATE_INTERVAL) {
+        strip.setPixelColor(2, strip.Color(buffer[2], buffer[3], buffer[4])); // RGB
+        strip.show();
+        lastNeoPixelUpdate = millis();
+    }
+}
