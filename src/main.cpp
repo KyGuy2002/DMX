@@ -4,9 +4,12 @@
 #include <iostream>
 #include <algorithm>
 
-#define PIN_PIPE_NEO 16   // GPIO pin connected
+void neopixelGlowWireTick(int startChannel, Adafruit_NeoPixel& strip, int noPixels);
+void neopixelSparkRimTick(int startChannel, Adafruit_NeoPixel& strip, int noPixels);
+
+#define PIN_PIPE_NEO 18   // GPIO pin connected
 #define PIN_DOOR_A_NEO 17  // GPIO pin connected
-#define PIN_DOOR_B_NEO 18  // GPIO pin connected
+#define PIN_DOOR_B_NEO 16  // GPIO pin connected
 #define PIN_RIM_NEO 19  // GPIO pin connected
 
 #define PIN_REL_1 2  // GPIO pin connected to relay 1
@@ -56,19 +59,19 @@ void setup1() {
     // Init NeoPixels
     pipeStrip.begin();
     pipeStrip.show();
-    pipeStrip.setBrightness(50);
+    pipeStrip.setBrightness(255);
 
     doorAStrip.begin();
     doorAStrip.show();
-    doorAStrip.setBrightness(50);
+    doorAStrip.setBrightness(255);
 
     doorBStrip.begin();
     doorBStrip.show();
-    doorBStrip.setBrightness(50);
+    doorBStrip.setBrightness(255);
 
     rimStrip.begin();
     rimStrip.show();
-    rimStrip.setBrightness(50);
+    rimStrip.setBrightness(255);
 
     // Default DMX values before controller is connected
     buffer[0] = 0; // Start code
