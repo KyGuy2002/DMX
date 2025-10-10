@@ -14,6 +14,7 @@
 #define PIN_REL_5 6  // GPIO pin connected to relay 5
 #define PIN_REL_6 7  // GPIO pin connected to relay 6
 #define PIN_REL_7 22 // GPIO pin connected to relay 7
+#define PIN_REL_8 21 // GPIO pin connected to relay 8
 
 #define PIN_DIM_1 8  // GPIO pin connected to dimmer 1
 #define PIN_DIM_2 9  // GPIO pin connected to dimmer 2
@@ -67,26 +68,27 @@ void setup1() {
     buffer[2] = 50; // REL_2 Bottom Bolt Solenoid Relay
     buffer[3] = 50; // REL_3 Top Bolt Solenoid Relay
     buffer[4] = 50; // REL_4 Door Red Flasher Relay
-    buffer[5] = 50; // REL_5 Spare Relay
+    buffer[5] = 50; // REL_5 Fog Machine Relay
     buffer[6] = 50; // REL_6 Spare Relay
     buffer[7] = 50; // REL_7 Spare Relay
+    buffer[8] = 50; // REL_8 Spare Relay
 
-    buffer[8] = 50;  // DIM_1 Right Blue Fiber Dimmer
-    buffer[9] = 50;  // DIM_2 Top COB Glow Wire Dimmer
-    buffer[10] = 50; // DIM_3 Left Red Fiber Dimmer
-    buffer[11] = 50; // DIM_4 Door Gauge Dimmer
-    buffer[12] = 50; // DIM_5 Door Indicator Group A Dimmer
-    buffer[13] = 50; // DIM_6 Door Indicator Group B Dimmer
-    buffer[14] = 50; // DIM_7 Door Indicator Group C Dimmer + Door COB Glow Wire Dimmer
+    buffer[9] = 50;  // DIM_1 Right Blue Fiber Dimmer
+    buffer[10] = 50;  // DIM_2 Top COB Glow Wire Dimmer
+    buffer[11] = 50; // DIM_3 Left Red Fiber Dimmer
+    buffer[12] = 50; // DIM_4 Door Gauge Dimmer
+    buffer[13] = 50; // DIM_5 Door Indicator Group A Dimmer
+    buffer[14] = 50; // DIM_6 Door Indicator Group B Dimmer
+    buffer[15] = 50; // DIM_7 Door Indicator Group C Dimmer + Door COB Glow Wire Dimmer
 
-    buffer[15] = 50;
     buffer[16] = 50;
     buffer[17] = 50;
-    buffer[18] = 255;
+    buffer[18] = 50;
     buffer[19] = 255;
-    buffer[20] = 50;
+    buffer[20] = 255;
     buffer[21] = 50;
     buffer[22] = 50;
+    buffer[23] = 50;
 }
 
 
@@ -102,26 +104,27 @@ void loop1() {
     digitalWrite(PIN_REL_5, (buffer[5] > 127) ? LOW : HIGH);
     digitalWrite(PIN_REL_6, (buffer[6] > 127) ? LOW : HIGH);
     digitalWrite(PIN_REL_7, (buffer[7] > 127) ? LOW : HIGH);
+    digitalWrite(PIN_REL_8, (buffer[8] > 127) ? LOW : HIGH);
 
-    analogWrite(PIN_DIM_1, buffer[8]);
-    analogWrite(PIN_DIM_2, buffer[9]);
-    analogWrite(PIN_DIM_3, buffer[10]);
-    analogWrite(PIN_DIM_4, buffer[11]);
-    analogWrite(PIN_DIM_5, buffer[12]);
-    analogWrite(PIN_DIM_6, buffer[13]);
-    analogWrite(PIN_DIM_7, buffer[14]);
+    analogWrite(PIN_DIM_1, buffer[9]);
+    analogWrite(PIN_DIM_2, buffer[10]);
+    analogWrite(PIN_DIM_3, buffer[11]);
+    analogWrite(PIN_DIM_4, buffer[12]);
+    analogWrite(PIN_DIM_5, buffer[13]);
+    analogWrite(PIN_DIM_6, buffer[14]);
+    analogWrite(PIN_DIM_7, buffer[15]);
 
     // Neopixel stuff
 
     // Get params
-    int dotRed = buffer[15];
-    int dotGreen = buffer[16];
-    int dotBlue = buffer[17];
-    int speed = ((1 - (buffer[18] / 255.0f)) * 10) + 0.01; // Speed from 1 (fast) to 10 (slow)
-    int dotCount = ((buffer[19] / 255.0f) * 19) + 1; // Ensure at least 1 dot
-    int backRed = buffer[20];
-    int backGreen = buffer[21];
-    int backBlue = buffer[22];
+    int dotRed = buffer[16];
+    int dotGreen = buffer[17];
+    int dotBlue = buffer[18];
+    int speed = ((1 - (buffer[19] / 255.0f)) * 10) + 0.01; // Speed from 1 (fast) to 10 (slow)
+    int dotCount = ((buffer[20] / 255.0f) * 19) + 1; // Ensure at least 1 dot
+    int backRed = buffer[21];
+    int backGreen = buffer[22];
+    int backBlue = buffer[23];
 
     const int spacing = (strip.numPixels() / dotCount);
 
