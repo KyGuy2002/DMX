@@ -1,11 +1,13 @@
 #include <Arduino.h>
 #include "DmxInput.h"
 #include <Adafruit_NeoPixel.h>
+#include <iostream>
+#include <algorithm>
 
-#define STRIP_PIN 16   // GPIO pin connected
-#define STRIP_PIN2 17  // GPIO pin connected
-#define STRIP_PIN3 18  // GPIO pin connected
-#define STRIP_PIN4 19  // GPIO pin connected
+#define PIN_PIPE_NEO 16   // GPIO pin connected
+#define PIN_DOOR_A_NEO 17  // GPIO pin connected
+#define PIN_DOOR_B_NEO 18  // GPIO pin connected
+#define PIN_RIM_NEO 19  // GPIO pin connected
 
 #define PIN_REL_1 2  // GPIO pin connected to relay 1
 #define PIN_REL_2 3  // GPIO pin connected to relay 2
@@ -26,17 +28,21 @@
 
 #define PIN_DMX 15   // GPIO pin connected to DMX input
 
-#define LED_COUNT 150
+#define PIPE_MAX_PIXELS 100
+#define DOOR_A_MAX_PIXELS 200
+#define DOOR_B_MAX_PIXELS 200
+#define RIM_MAX_PIXELS 80
 
-#define START_CHANNEL 1
-#define NUM_CHANNELS 40
+#define START_CHANNEL 29
+#define NUM_CHANNELS 45
 
 DmxInput dmxInput;
 
-Adafruit_NeoPixel strip(LED_COUNT, STRIP_PIN, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip2(LED_COUNT, STRIP_PIN2, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip3(LED_COUNT, STRIP_PIN3, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip4(LED_COUNT, STRIP_PIN4, NEO_GRB + NEO_KHZ800);
+int LED_COUNT = std::max({PIPE_MAX_PIXELS, DOOR_A_MAX_PIXELS, DOOR_B_MAX_PIXELS, RIM_MAX_PIXELS});
+Adafruit_NeoPixel pipeStrip(LED_COUNT, PIN_PIPE_NEO, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel doorAStrip(LED_COUNT, PIN_DOOR_A_NEO, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel doorBStrip(LED_COUNT, PIN_DOOR_B_NEO, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel rimStrip(LED_COUNT, PIN_RIM_NEO, NEO_GRB + NEO_KHZ800);
 
 volatile uint8_t buffer[DMXINPUT_BUFFER_SIZE(START_CHANNEL, NUM_CHANNELS)];
 
@@ -45,23 +51,26 @@ const uint32_t PWM_HZ = 5000;      // 5 kHz
 
 // Core 1 function for NeoPixel operations
 void setup1() {
-    // Initialize NeoPixel strip on Core 1
-    strip.begin();
-    strip.show();
-    strip.setBrightness(255);
 
-    strip2.begin();
-    strip2.show();
-    strip2.setBrightness(255);
 
-    strip3.begin();
-    strip3.show();
-    strip3.setBrightness(255);
+    // Init NeoPixels
+    pipeStrip.begin();
+    pipeStrip.show();
+    pipeStrip.setBrightness(50);
 
-    strip4.begin();
-    strip4.show();
-    strip4.setBrightness(255);
+    doorAStrip.begin();
+    doorAStrip.show();
+    doorAStrip.setBrightness(50);
 
+    doorBStrip.begin();
+    doorBStrip.show();
+    doorBStrip.setBrightness(50);
+
+    rimStrip.begin();
+    rimStrip.show();
+    rimStrip.setBrightness(50);
+
+    // Default DMX values before controller is connected
     buffer[0] = 0; // Start code
 
     buffer[1] = 50; // REL_1 Air Solenoid Relay
@@ -74,21 +83,47 @@ void setup1() {
     buffer[8] = 50; // REL_8 Spare Relay
 
     buffer[9] = 50;  // DIM_1 Right Blue Fiber Dimmer
-    buffer[10] = 50;  // DIM_2 Top COB Glow Wire Dimmer
+    buffer[10] = 50; // DIM_2 Top COB Glow Wire Dimmer
     buffer[11] = 50; // DIM_3 Left Red Fiber Dimmer
     buffer[12] = 50; // DIM_4 Door Gauge Dimmer
     buffer[13] = 50; // DIM_5 Door Indicator Group A Dimmer
     buffer[14] = 50; // DIM_6 Door Indicator Group B Dimmer
     buffer[15] = 50; // DIM_7 Door Indicator Group C Dimmer + Door COB Glow Wire Dimmer
 
-    buffer[16] = 50;
-    buffer[17] = 50;
-    buffer[18] = 50;
-    buffer[19] = 255;
-    buffer[20] = 255;
-    buffer[21] = 50;
-    buffer[22] = 50;
-    buffer[23] = 50;
+    buffer[16] = 50; // Pipe Neo Dot Red
+    buffer[17] = 50; // Pipe Neo Dot Green
+    buffer[18] = 50; // Pipe Neo Dot Blue
+    buffer[19] = 255; // Pipe Neo Dot Speed
+    buffer[20] = 255; // Pipe Neo Dot Count
+    buffer[21] = 50; // Pipe Neo Dot Background Red
+    buffer[22] = 50; // Pipe Neo Dot Background Green
+    buffer[23] = 50; // Pipe Neo Dot Background Blue
+
+    buffer[24] = 50; // Door Neo A Dot Red
+    buffer[25] = 50; // Door Neo A Dot Green
+    buffer[26] = 50; // Door Neo A Dot Blue
+    buffer[27] = 255; // Door Neo A Dot Speed
+    buffer[28] = 255; // Door Neo A Dot Count
+    buffer[29] = 50; // Door Neo A Dot Background Red
+    buffer[30] = 50; // Door Neo A Dot Background Green
+    buffer[31] = 50; // Door Neo A Dot Background Blue
+
+    buffer[32] = 50; // Door Neo B Dot Red
+    buffer[33] = 50; // Door Neo B Dot Green
+    buffer[34] = 50; // Door Neo B Dot Blue
+    buffer[35] = 255; // Door Neo B Dot Speed
+    buffer[36] = 255; // Door Neo B Dot Count
+    buffer[37] = 50; // Door Neo B Dot Background Red
+    buffer[38] = 50; // Door Neo B Dot Background Green
+    buffer[39] = 50; // Door Neo B Dot Background Blue
+
+
+    buffer[40] = 50; // Rim Neo Spark Red
+    buffer[41] = 50; // Rim Neo Spark Green
+    buffer[42] = 50; // Rim Neo Spark Blue
+    buffer[43] = 255; // Rim Neo Spark Count
+    buffer[44] = 255; // Rim Neo Spark Duration
+
 }
 
 
@@ -114,46 +149,13 @@ void loop1() {
     analogWrite(PIN_DIM_6, buffer[14]);
     analogWrite(PIN_DIM_7, buffer[15]);
 
-    // Neopixel stuff
+    neopixelGlowWireTick(16, pipeStrip, PIPE_MAX_PIXELS); // Pipe
+    neopixelGlowWireTick(24, doorAStrip, DOOR_A_MAX_PIXELS); // Door A
+    neopixelGlowWireTick(32, doorBStrip, DOOR_B_MAX_PIXELS); // Door B
 
-    // Get params
-    int dotRed = buffer[16];
-    int dotGreen = buffer[17];
-    int dotBlue = buffer[18];
-    int speed = ((1 - (buffer[19] / 255.0f)) * 10) + 0.01; // Speed from 1 (fast) to 10 (slow)
-    int dotCount = ((buffer[20] / 255.0f) * 19) + 1; // Ensure at least 1 dot
-    int backRed = buffer[21];
-    int backGreen = buffer[22];
-    int backBlue = buffer[23];
+    neopixelSparkRimTick(40, rimStrip, RIM_MAX_PIXELS); // Rim
 
-    const int spacing = (strip.numPixels() / dotCount);
-
-    // Set all background color
-    for (uint16_t i = 0; i < strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(backRed, backGreen, backBlue));
-        strip2.setPixelColor(i, strip2.Color(backRed, backGreen, backBlue));
-        strip3.setPixelColor(i, strip3.Color(backRed, backGreen, backBlue));
-        strip4.setPixelColor(i, strip4.Color(backRed, backGreen, backBlue));
-    }
-
-    for (uint16_t i = 0; i < dotCount; i++) {
-        int pix = (currentPix + i * spacing) % strip.numPixels();
-        strip.setPixelColor(pix, strip.Color(dotRed, dotGreen, dotBlue));
-        strip2.setPixelColor(pix, strip2.Color(dotRed, dotGreen, dotBlue));
-        strip3.setPixelColor(pix, strip3.Color(dotRed, dotGreen, dotBlue));
-        strip4.setPixelColor(pix, strip4.Color(dotRed, dotGreen, dotBlue));
-    }
-
-    if (currentPix++ >= spacing) {
-        currentPix = 0;
-    }
-
-    strip.show();
-    strip2.show();
-    strip3.show();
-    strip4.show();
-    delay(speed);
-    
+    delay(1);
 }
 
 void setup() {
@@ -204,4 +206,74 @@ void loop() {
         Serial1.print(", ");
     }
     Serial1.println("");
+}
+
+
+
+
+// Neopixel Glow Wire func
+int ticksSinceLastGlowWireUpdate = 0;
+void neopixelGlowWireTick(int startChannel, Adafruit_NeoPixel& strip, int noPixels) {
+
+    // Speed
+    int ticksBetween = ((1 - (buffer[startChannel + 3] / 255.0f)) * 15) + 0.01; // Speed from 0 ticks to 15 ticks between updates
+    if (ticksSinceLastGlowWireUpdate < ticksBetween) {
+        ticksSinceLastGlowWireUpdate++;
+        return;
+    }
+    ticksSinceLastGlowWireUpdate = 0;
+
+    // Read params
+    int dotRed = buffer[startChannel];
+    int dotGreen = buffer[startChannel + 1];
+    int dotBlue = buffer[startChannel + 2];
+    int dotCount = ((buffer[startChannel + 4] / 255.0f) * 19) + 1; // Ensure at least 1 dot
+    int backRed = buffer[startChannel + 5];
+    int backGreen = buffer[startChannel + 6];
+    int backBlue = buffer[startChannel + 7];
+
+    const int spacing = (strip.numPixels() / dotCount);
+
+    // Set all background color
+    for (uint16_t i = 0; i < strip.numPixels(); i++) {
+        strip.setPixelColor(i, strip.Color(backRed, backGreen, backBlue));
+    }
+
+    for (uint16_t i = 0; i < dotCount; i++) {
+        int pix = (currentPix + i * spacing) % strip.numPixels();
+        strip.setPixelColor(pix, strip.Color(dotRed, dotGreen, dotBlue));
+    }
+
+    if (currentPix++ >= spacing) {
+        currentPix = 0;
+    }
+
+    strip.show();
+
+}
+
+
+// Neopixel Spark Rim func
+int ticksSinceLastSparkRimUpdate = 0;
+void neopixelSparkRimTick(int startChannel, Adafruit_NeoPixel& strip, int noPixels) {
+
+    // Read params
+    int sparkRed = buffer[startChannel];
+    int sparkGreen = buffer[startChannel + 1];
+    int sparkBlue = buffer[startChannel + 2];
+    int sparkCount = buffer[startChannel + 3];
+    int sparkDuration = ((1 - (buffer[startChannel + 5] / 255.0f)) * 30) + 1; // 1 ticks to 30 ticks between despawn
+
+    // Set all background color
+    for (uint16_t i = 0; i < strip.numPixels(); i++) {
+        strip.setPixelColor(i, strip.Color(0, 0, 0));
+    }
+
+    for (int i = 0; i < sparkCount; i++) {
+        int pix = random(0, strip.numPixels());
+        strip.setPixelColor(pix, strip.Color(sparkRed, sparkGreen, sparkBlue));
+    }
+
+    strip.show();
+
 }
