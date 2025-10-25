@@ -2,9 +2,19 @@
 
 #include <Arduino.h>
 #include "DmxInput.h"
+#include <Adafruit_NeoPixel.h>
 #include <iostream>
 #include <algorithm>
 
+void neopixelGlowWireTick(int startChannel, int noPixels, int& ticksSinceLastGlowWireUpdate, int& currentPix);
+
+#define PIN_TOP_NEOS 14  // GPIO pin connected
+#define PIN_LONG_NEO_2 13  // GPIO pin connected
+#define PIN_EXTRA_NEO_1 12  // GPIO pin connected
+#define PIN_TALL_POST_NEO 11  // GPIO pin connected
+#define PIN_LONG_NEO_3 10  // GPIO pin connected
+#define PIN_LONG_NEO_1 9  // GPIO pin connected
+#define PIN_EXTRA_NEO_2 8  // GPIO pin connected
 
 #define PIN_REL_1 20  // GPIO pin connected to relay 1
 #define PIN_REL_2 19  // GPIO pin connected to relay 2
@@ -23,22 +33,66 @@
 
 #define PIN_DMX 15   // GPIO pin connected to DMX input
 
+// #define TOP_MAX_PIXELS 100
+// #define LONG_MAX_PIXELS 200
+// #define EXTRA_1_MAX_PIXELS 200
+// #define EXTRA_2_MAX_PIXELS 80
+// #define TALL_POST_MAX_PIXELS 150
 
 
-#define START_CHANNEL 29
-#define NUM_CHANNELS 70
+#define START_CHANNEL 79
+#define NUM_CHANNELS 200
 
 DmxInput dmxInput;
 
+int LED_COUNT = 200;
+Adafruit_NeoPixel long1Strip(LED_COUNT, PIN_LONG_NEO_1, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel long2Strip(LED_COUNT, PIN_LONG_NEO_2, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel long3Strip(LED_COUNT, PIN_LONG_NEO_3, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel extra1Strip(LED_COUNT, PIN_EXTRA_NEO_1, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel extra2Strip(LED_COUNT, PIN_EXTRA_NEO_2, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel tallPostStrip(LED_COUNT, PIN_TALL_POST_NEO, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel topStrip(LED_COUNT, PIN_TOP_NEOS, NEO_GRB + NEO_KHZ800);
 
-volatile uint8_t buffer[DMXINPUT_BUFFER_SIZE(START_CHANNEL, NUM_CHANNELS)];
-volatile uint8_t* dmx = buffer + START_CHANNEL - 1;  // so dmx[1] == channel 29
+volatile uint8_t buffer[DMXINPUT_BUFFER_SIZE(START_CHANNEL, NUM_CHANNELS + START_CHANNEL)];
+// Create a shifted view so dmx[0] corresponds to DMX channel START_CHANNEL
+volatile uint8_t* dmx = buffer + START_CHANNEL - 1;
 
 // Choose a human-invisible PWM frequency
 const uint32_t PWM_HZ = 5000;      // 5 kHz
 
 // Core 1 function for NeoPixel operations
 void setup1() {
+
+
+    // Init NeoPixels
+    long1Strip.begin();
+    long1Strip.show();
+    long1Strip.setBrightness(255);
+
+    long2Strip.begin();
+    long2Strip.show();
+    long2Strip.setBrightness(255);
+
+    long3Strip.begin();
+    long3Strip.show();
+    long3Strip.setBrightness(255);
+
+    extra1Strip.begin();
+    extra1Strip.show();
+    extra1Strip.setBrightness(255);
+
+    extra2Strip.begin();
+    extra2Strip.show();
+    extra2Strip.setBrightness(255);
+
+    tallPostStrip.begin();
+    tallPostStrip.show();
+    tallPostStrip.setBrightness(255);
+
+    topStrip.begin();
+    topStrip.show();
+    topStrip.setBrightness(255);
 
     // Default DMX values before controller is connected
     // Use the shifted view so dmx[0] == DMX channel START_CHANNEL (29)
@@ -68,68 +122,25 @@ void setup1() {
     dmx[20] = 50; // Pipe Neo Dot Background Green
     dmx[21] = 50; // Pipe Neo Dot Background Blue
 
-    dmx[22] = 50; // Door Neo A Dot Red
-    dmx[23] = 50; // Door Neo A Dot Green
-    dmx[24] = 50; // Door Neo A Dot Blue
-    dmx[25] = 50; // Door Neo A Dot Speed
-    dmx[26] = 50; // Door Neo A Dot Count
-    dmx[27] = 50; // Door Neo A Dot Background Red
-    dmx[28] = 50; // Door Neo A Dot Background Green
-    dmx[29] = 50; // Door Neo A Dot Background Blue
-
-    dmx[30] = 50; // Door Neo B Dot Red
-    dmx[31] = 50; // Door Neo B Dot Green
-    dmx[32] = 50; // Door Neo B Dot Blue
-    dmx[33] = 50; // Door Neo B Dot Speed
-    dmx[34] = 50; // Door Neo B Dot Count
-    dmx[35] = 50; // Door Neo B Dot Background Red
-    dmx[36] = 50; // Door Neo B Dot Background Green
-    dmx[37] = 50; // Door Neo B Dot Background Blue
-
-    dmx[38] = 50; // Door Neo B Dot Red
-    dmx[39] = 50; // Door Neo B Dot Green
-    dmx[40] = 50; // Door Neo B Dot Blue
-    dmx[41] = 50; // Door Neo B Dot Speed
-    dmx[42] = 50; // Door Neo B Dot Count
-    dmx[43] = 50; // Door Neo B Dot Background Red
-    dmx[44] = 50; // Door Neo B Dot Background Green
-    dmx[45] = 50; // Door Neo B Dot Background Blue
-
-    dmx[46] = 50; // Door Neo B Dot Red
-    dmx[47] = 50; // Door Neo B Dot Green
-    dmx[48] = 50; // Door Neo B Dot Blue
-    dmx[49] = 50; // Door Neo B Dot Speed
-    dmx[50] = 50; // Door Neo B Dot Count
-    dmx[51] = 50; // Door Neo B Dot Background Red
-    dmx[52] = 50; // Door Neo B Dot Background Green
-    dmx[53] = 50; // Door Neo B Dot Background Blue
-
-    dmx[54] = 50; // Door Neo B Dot Red
-    dmx[55] = 50; // Door Neo B Dot Green
-    dmx[56] = 50; // Door Neo B Dot Blue
-    dmx[57] = 50; // Door Neo B Dot Speed
-    dmx[58] = 50; // Door Neo B Dot Count
-    dmx[59] = 50; // Door Neo B Dot Background Red
-    dmx[60] = 50; // Door Neo B Dot Background Green
-    dmx[61] = 50; // Door Neo B Dot Background Blue
-
-    dmx[62] = 50; // Door Neo B Dot Red
-    dmx[63] = 50; // Door Neo B Dot Green
-    dmx[64] = 50; // Door Neo B Dot Blue
-    dmx[65] = 50; // Door Neo B Dot Speed
-    dmx[66] = 50; // Door Neo B Dot Count
-    dmx[67] = 50; // Door Neo B Dot Background Red
-    dmx[68] = 50; // Door Neo B Dot Background Green
-    dmx[69] = 50; // Door Neo B Dot Background Blue
-
 }
 
 
+int ticksSinceLastGlowWireUpdateTopStrip = 0;
+int currentPixTopStrip = 0;
+// int ticksSinceLastGlowWireUpdateLong2Strip = 0;
+// int currentPixLong2Strip = 0;
+// int ticksSinceLastGlowWireUpdateExtra1Strip = 0;
+// int currentPixExtra1Strip = 0;
+// int ticksSinceLastGlowWireUpdateTallPostStrip = 0;
+// int currentPixTallPostStrip = 0;
+// int ticksSinceLastGlowWireUpdateLong3Strip = 0;
+// int currentPixLong3Strip = 0;
+// int ticksSinceLastGlowWireUpdateLong1Strip = 0;
+// int currentPixLong1Strip = 0;
+// int ticksSinceLastGlowWireUpdateExtra2Strip = 0;
+// int currentPixExtra2Strip = 0;
 
 void loop1() {
-
-    Serial1.println("Core 1 running loop1()");
-    analogWrite(PIN_DIM_4, 255);
 
     // Basic stuff
     digitalWrite(PIN_REL_1, (dmx[1] > 127) ? LOW : HIGH);
@@ -141,13 +152,21 @@ void loop1() {
     analogWrite(PIN_DIM_1, dmx[6]);
     analogWrite(PIN_DIM_2, dmx[7]);
     analogWrite(PIN_DIM_3, dmx[8]);
-    // analogWrite(PIN_DIM_4, dmx[9]);
+    analogWrite(PIN_DIM_4, dmx[9]);
     analogWrite(PIN_DIM_5, dmx[10]);
     analogWrite(PIN_DIM_6, dmx[11]);
     analogWrite(PIN_DIM_7, dmx[12]);
     analogWrite(PIN_DIM_8, dmx[13]);
 
-    delay(1);
+    neopixelGlowWireTick(14, 200, ticksSinceLastGlowWireUpdateTopStrip, currentPixTopStrip); // Pipe
+    // neopixelGlowWireTick(14, long2Strip, LONG_MAX_PIXELS, ticksSinceLastGlowWireUpdateLong2Strip, currentPixLong2Strip); // Door A
+    // neopixelGlowWireTick(14, extra1Strip, EXTRA_1_MAX_PIXELS, ticksSinceLastGlowWireUpdateExtra1Strip, currentPixExtra1Strip); // Door B
+    // neopixelGlowWireTick(14, tallPostStrip, TALL_POST_MAX_PIXELS, ticksSinceLastGlowWireUpdateTallPostStrip, currentPixTallPostStrip); // Door B
+    // neopixelGlowWireTick(14, long3Strip, LONG_MAX_PIXELS, ticksSinceLastGlowWireUpdateLong3Strip, currentPixLong3Strip); // Door B
+    // neopixelGlowWireTick(14, long1Strip, LONG_MAX_PIXELS, ticksSinceLastGlowWireUpdateLong1Strip, currentPixLong1Strip); // Door B
+    // neopixelGlowWireTick(14, extra2Strip, EXTRA_2_MAX_PIXELS, ticksSinceLastGlowWireUpdateExtra2Strip, currentPixExtra2Strip); // Door B
+
+    delayMicroseconds(1);
 }
 
 void setup() {
@@ -170,8 +189,8 @@ void setup() {
     pinMode(PIN_DIM_8, OUTPUT);
 
     // Setup our DMX Input to read on GPIO 15, from channel 1 to 3
-   dmxInput.begin(PIN_DMX, START_CHANNEL, NUM_CHANNELS); // COUNT, not end
-  dmxInput.read_async((uint8_t*)buffer); 
+    dmxInput.begin(PIN_DMX, START_CHANNEL, NUM_CHANNELS + START_CHANNEL - 1);
+    dmxInput.read_async(buffer);
 
     Serial1.begin(115200);
     delay(1000);
@@ -182,5 +201,81 @@ void setup() {
 }
 
 void loop() {
+    // Core 0: Handle DMX input and PWM output only
+    
+    if(millis() > 100+dmxInput.latest_packet_timestamp()) {
+        Serial1.println("no data!");
+        return;
+    }
+    
+    // Print the DMX channels
+    Serial1.print("Received packet: ");
+    for (uint i = 0; i < 10; i++)
+    {
+        Serial1.print(dmx[i]);
+        Serial1.print(", ");
+    }
+    Serial1.println("");
+}
+
+
+
+
+// Neopixel Glow Wire func
+void neopixelGlowWireTick(int startChannel, int noPixels, int& ticksSinceLastGlowWireUpdate, int& currentPix) {
+
+    // Speed
+    // int ticksBetween = ((1 - (dmx[startChannel + 3] / 255.0f)) * 5) + 0.01; // Speed from 0 ticks to 15 ticks between updates
+    int ticksBetween = 100;
+    if (ticksSinceLastGlowWireUpdate < ticksBetween) {
+        ticksSinceLastGlowWireUpdate++;
+        return;
+    }
+    ticksSinceLastGlowWireUpdate = 0;
+
+    // Read params
+    int dotRed = dmx[startChannel];
+    int dotGreen = dmx[startChannel + 1];
+    int dotBlue = dmx[startChannel + 2];
+    int dotCount = ((dmx[startChannel + 4] / 255.0f) * 19) + 1; // Ensure at least 1 dot
+    int backRed = dmx[startChannel + 5];
+    int backGreen = dmx[startChannel + 6];
+    int backBlue = dmx[startChannel + 7];
+
+    const int spacing = (200 / dotCount);
+
+    // Set all background color
+    for (uint16_t i = 0; i < 200; i++) {
+        topStrip.setPixelColor(i, topStrip.Color(backRed, backGreen, backBlue));
+        long2Strip.setPixelColor(i, long2Strip.Color(backRed, backGreen, backBlue));
+        extra1Strip.setPixelColor(i, extra1Strip.Color(backRed, backGreen, backBlue));
+        tallPostStrip.setPixelColor(i, tallPostStrip.Color(backRed, backGreen, backBlue));
+        long3Strip.setPixelColor(i, long3Strip.Color(backRed, backGreen, backBlue));
+        long1Strip.setPixelColor(i, long1Strip.Color(backRed, backGreen, backBlue));
+        extra2Strip.setPixelColor(i, extra2Strip.Color(backRed, backGreen,  backBlue));
+    }
+
+    for (uint16_t i = 0; i < dotCount; i++) {
+        int pix = (currentPix + i * spacing) % 200;
+        topStrip.setPixelColor(pix, topStrip.Color(dotRed, dotGreen, dotBlue));
+        long2Strip.setPixelColor(pix, long2Strip.Color(dotRed, dotGreen, dotBlue));
+        extra1Strip.setPixelColor(pix, extra1Strip.Color(dotRed, dotGreen, dotBlue));
+        tallPostStrip.setPixelColor(pix, tallPostStrip.Color(dotRed, dotGreen, dotBlue));
+        long3Strip.setPixelColor(pix, long3Strip.Color(dotRed, dotGreen, dotBlue));
+        long1Strip.setPixelColor(pix, long1Strip.Color(dotRed, dotGreen, dotBlue));
+        extra2Strip.setPixelColor(pix, extra2Strip.Color(dotRed, dotGreen, dotBlue));
+    }
+
+    if (currentPix++ >= spacing) {
+        currentPix = 0;
+    }
+
+    topStrip.show();
+    long2Strip.show();
+    extra1Strip.show();
+    tallPostStrip.show();
+    long3Strip.show();
+    long1Strip.show();
+    extra2Strip.show();
 
 }
