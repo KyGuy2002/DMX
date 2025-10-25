@@ -31,9 +31,8 @@
 DmxInput dmxInput;
 
 
-volatile uint8_t buffer[DMXINPUT_BUFFER_SIZE(START_CHANNEL, NUM_CHANNELS + START_CHANNEL)];
-// Create a shifted view so dmx[0] corresponds to DMX channel START_CHANNEL
-volatile uint8_t* dmx = buffer + START_CHANNEL - 1;
+volatile uint8_t buffer[DMXINPUT_BUFFER_SIZE(START_CHANNEL, NUM_CHANNELS)];
+volatile uint8_t* dmx = buffer + START_CHANNEL - 1;  // so dmx[1] == channel 29
 
 // Choose a human-invisible PWM frequency
 const uint32_t PWM_HZ = 5000;      // 5 kHz
@@ -171,8 +170,8 @@ void setup() {
     pinMode(PIN_DIM_8, OUTPUT);
 
     // Setup our DMX Input to read on GPIO 15, from channel 1 to 3
-    dmxInput.begin(PIN_DMX, START_CHANNEL, NUM_CHANNELS + START_CHANNEL - 1);
-    dmxInput.read_async(buffer);
+   dmxInput.begin(PIN_DMX, START_CHANNEL, NUM_CHANNELS); // COUNT, not end
+  dmxInput.read_async((uint8_t*)buffer); 
 
     Serial1.begin(115200);
     delay(1000);
