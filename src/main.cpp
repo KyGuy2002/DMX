@@ -38,7 +38,7 @@ void neopixelSparkRimTick(int startChannel, Adafruit_NeoPixel& strip, int noPixe
 #define DOOR_B_MAX_PIXELS 200
 #define RIM_MAX_PIXELS 80
 
-#define START_CHANNEL 29
+#define START_CHANNEL 5
 #define NUM_CHANNELS 45
 
 DmxInput dmxInput;
@@ -107,11 +107,11 @@ void setup1() {
     dmx[22] = 50; // Pipe Neo Dot Background Green
     dmx[23] = 50; // Pipe Neo Dot Background Blue
 
-    dmx[40] = 50; // Rim Neo Spark Red
-    dmx[41] = 50; // Rim Neo Spark Green
-    dmx[42] = 50; // Rim Neo Spark Blue
-    dmx[43] = 5; // Rim Neo Spark Count
-    dmx[44] = 10; // Rim Neo Spark Duration
+    dmx[24] = 50; // Rim Neo Spark Red
+    dmx[25] = 50; // Rim Neo Spark Green
+    dmx[26] = 50; // Rim Neo Spark Blue
+    dmx[27] = 5; // Rim Neo Spark Count
+    dmx[28] = 10; // Rim Neo Spark Duration
 
 }
 

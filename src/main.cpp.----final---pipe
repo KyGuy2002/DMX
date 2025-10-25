@@ -40,7 +40,7 @@ void neopixelGlowWireTick(int startChannel, int noPixels, int& ticksSinceLastGlo
 // #define TALL_POST_MAX_PIXELS 150
 
 
-#define START_CHANNEL 79
+#define START_CHANNEL 33
 #define NUM_CHANNELS 200
 
 DmxInput dmxInput;
