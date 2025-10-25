@@ -2,9 +2,19 @@
 
 #include <Arduino.h>
 #include "DmxInput.h"
+#include <Adafruit_NeoPixel.h>
 #include <iostream>
 #include <algorithm>
 
+void neopixelGlowWireTick(int startChannel, Adafruit_NeoPixel& strip, int noPixels, int& ticksSinceLastGlowWireUpdate, int& currentPix);
+
+#define PIN_TOP_NEOS 14  // GPIO pin connected
+#define PIN_LONG_NEO_2 13  // GPIO pin connected
+#define PIN_EXTRA_NEO_1 12  // GPIO pin connected
+#define PIN_TALL_POST_NEO 11  // GPIO pin connected
+#define PIN_LONG_NEO_3 10  // GPIO pin connected
+#define PIN_LONG_NEO_1 9  // GPIO pin connected
+#define PIN_EXTRA_NEO_2 8  // GPIO pin connected
 
 #define PIN_REL_1 20  // GPIO pin connected to relay 1
 #define PIN_REL_2 19  // GPIO pin connected to relay 2
@@ -23,6 +33,11 @@
 
 #define PIN_DMX 15   // GPIO pin connected to DMX input
 
+#define TOP_MAX_PIXELS 100
+#define LONG_MAX_PIXELS 200
+#define EXTRA_1_MAX_PIXELS 200
+#define EXTRA_2_MAX_PIXELS 80
+#define TALL_POST_MAX_PIXELS 150
 
 
 #define START_CHANNEL 29
@@ -30,6 +45,14 @@
 
 DmxInput dmxInput;
 
+int LED_COUNT = std::max({TOP_MAX_PIXELS, LONG_MAX_PIXELS, EXTRA_1_MAX_PIXELS, EXTRA_2_MAX_PIXELS, TALL_POST_MAX_PIXELS});
+Adafruit_NeoPixel long1Strip(LED_COUNT, PIN_LONG_NEO_1, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel long2Strip(LED_COUNT, PIN_LONG_NEO_2, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel long3Strip(LED_COUNT, PIN_LONG_NEO_3, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel extra1Strip(LED_COUNT, PIN_EXTRA_NEO_1, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel extra2Strip(LED_COUNT, PIN_EXTRA_NEO_2, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel tallPostStrip(LED_COUNT, PIN_TALL_POST_NEO, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel topStrip(LED_COUNT, PIN_TOP_NEOS, NEO_GRB + NEO_KHZ800);
 
 volatile uint8_t buffer[DMXINPUT_BUFFER_SIZE(START_CHANNEL, NUM_CHANNELS + START_CHANNEL)];
 // Create a shifted view so dmx[0] corresponds to DMX channel START_CHANNEL
@@ -40,6 +63,36 @@ const uint32_t PWM_HZ = 5000;      // 5 kHz
 
 // Core 1 function for NeoPixel operations
 void setup1() {
+
+
+    // Init NeoPixels
+    long1Strip.begin();
+    long1Strip.show();
+    long1Strip.setBrightness(255);
+
+    long2Strip.begin();
+    long2Strip.show();
+    long2Strip.setBrightness(255);
+
+    long3Strip.begin();
+    long3Strip.show();
+    long3Strip.setBrightness(255);
+
+    extra1Strip.begin();
+    extra1Strip.show();
+    extra1Strip.setBrightness(255);
+
+    extra2Strip.begin();
+    extra2Strip.show();
+    extra2Strip.setBrightness(255);
+
+    tallPostStrip.begin();
+    tallPostStrip.show();
+    tallPostStrip.setBrightness(255);
+
+    topStrip.begin();
+    topStrip.show();
+    topStrip.setBrightness(255);
 
     // Default DMX values before controller is connected
     // Use the shifted view so dmx[0] == DMX channel START_CHANNEL (29)
@@ -126,11 +179,22 @@ void setup1() {
 }
 
 
+int ticksSinceLastGlowWireUpdateTopStrip = 0;
+int currentPixTopStrip = 0;
+int ticksSinceLastGlowWireUpdateLong2Strip = 0;
+int currentPixLong2Strip = 0;
+int ticksSinceLastGlowWireUpdateExtra1Strip = 0;
+int currentPixExtra1Strip = 0;
+int ticksSinceLastGlowWireUpdateTallPostStrip = 0;
+int currentPixTallPostStrip = 0;
+int ticksSinceLastGlowWireUpdateLong3Strip = 0;
+int currentPixLong3Strip = 0;
+int ticksSinceLastGlowWireUpdateLong1Strip = 0;
+int currentPixLong1Strip = 0;
+int ticksSinceLastGlowWireUpdateExtra2Strip = 0;
+int currentPixExtra2Strip = 0;
 
 void loop1() {
-
-    Serial1.println("Core 1 running loop1()");
-    analogWrite(PIN_DIM_4, 255);
 
     // Basic stuff
     digitalWrite(PIN_REL_1, (dmx[1] > 127) ? LOW : HIGH);
@@ -142,11 +206,19 @@ void loop1() {
     analogWrite(PIN_DIM_1, dmx[6]);
     analogWrite(PIN_DIM_2, dmx[7]);
     analogWrite(PIN_DIM_3, dmx[8]);
-    // analogWrite(PIN_DIM_4, dmx[9]);
+    analogWrite(PIN_DIM_4, dmx[9]);
     analogWrite(PIN_DIM_5, dmx[10]);
     analogWrite(PIN_DIM_6, dmx[11]);
     analogWrite(PIN_DIM_7, dmx[12]);
     analogWrite(PIN_DIM_8, dmx[13]);
+
+    neopixelGlowWireTick(14, topStrip, TOP_MAX_PIXELS, ticksSinceLastGlowWireUpdateTopStrip, currentPixTopStrip); // Pipe
+    neopixelGlowWireTick(22, long2Strip, LONG_MAX_PIXELS, ticksSinceLastGlowWireUpdateLong2Strip, currentPixLong2Strip); // Door A
+    neopixelGlowWireTick(30, extra1Strip, EXTRA_1_MAX_PIXELS, ticksSinceLastGlowWireUpdateExtra1Strip, currentPixExtra1Strip); // Door B
+    neopixelGlowWireTick(38, tallPostStrip, TALL_POST_MAX_PIXELS, ticksSinceLastGlowWireUpdateTallPostStrip, currentPixTallPostStrip); // Door B
+    neopixelGlowWireTick(46, long3Strip, LONG_MAX_PIXELS, ticksSinceLastGlowWireUpdateLong3Strip, currentPixLong3Strip); // Door B
+    neopixelGlowWireTick(54, long1Strip, LONG_MAX_PIXELS, ticksSinceLastGlowWireUpdateLong1Strip, currentPixLong1Strip); // Door B
+    neopixelGlowWireTick(62, extra2Strip, EXTRA_2_MAX_PIXELS, ticksSinceLastGlowWireUpdateExtra2Strip, currentPixExtra2Strip); // Door B
 
     delay(1);
 }
@@ -183,5 +255,88 @@ void setup() {
 }
 
 void loop() {
+    // Core 0: Handle DMX input and PWM output only
+    
+    if(millis() > 100+dmxInput.latest_packet_timestamp()) {
+        Serial1.println("no data!");
+        return;
+    }
+    
+    // Print the DMX channels
+    Serial1.print("Received packet: ");
+    for (uint i = 0; i < 10; i++)
+    {
+        Serial1.print(dmx[i]);
+        Serial1.print(", ");
+    }
+    Serial1.println("");
+}
+
+
+
+
+// Neopixel Glow Wire func
+void neopixelGlowWireTick(int startChannel, Adafruit_NeoPixel& strip, int noPixels, int& ticksSinceLastGlowWireUpdate, int& currentPix) {
+
+    // Speed
+    int ticksBetween = ((1 - (dmx[startChannel + 3] / 255.0f)) * 15) + 0.01; // Speed from 0 ticks to 15 ticks between updates
+    if (ticksSinceLastGlowWireUpdate < ticksBetween) {
+        ticksSinceLastGlowWireUpdate++;
+        return;
+    }
+    ticksSinceLastGlowWireUpdate = 0;
+
+    // Read params
+    int dotRed = dmx[startChannel];
+    int dotGreen = dmx[startChannel + 1];
+    int dotBlue = dmx[startChannel + 2];
+    int dotCount = ((dmx[startChannel + 4] / 255.0f) * 19) + 1; // Ensure at least 1 dot
+    int backRed = dmx[startChannel + 5];
+    int backGreen = dmx[startChannel + 6];
+    int backBlue = dmx[startChannel + 7];
+
+    const int spacing = (strip.numPixels() / dotCount);
+
+    // Set all background color
+    for (uint16_t i = 0; i < strip.numPixels(); i++) {
+        strip.setPixelColor(i, strip.Color(backRed, backGreen, backBlue));
+    }
+
+    for (uint16_t i = 0; i < dotCount; i++) {
+        int pix = (currentPix + i * spacing) % strip.numPixels();
+        strip.setPixelColor(pix, strip.Color(dotRed, dotGreen, dotBlue));
+    }
+
+    if (currentPix++ >= spacing) {
+        currentPix = 0;
+    }
+
+    strip.show();
+
+}
+
+
+// Neopixel Spark Rim func
+int ticksSinceLastSparkRimUpdate = 0;
+void neopixelSparkRimTick(int startChannel, Adafruit_NeoPixel& strip, int noPixels) {
+
+    // Read params
+    int sparkRed = dmx[startChannel];
+    int sparkGreen = dmx[startChannel + 1];
+    int sparkBlue = dmx[startChannel + 2];
+    int sparkCount = dmx[startChannel + 3];
+    int sparkDuration = ((1 - (dmx[startChannel + 5] / 255.0f)) * 30) + 1; // 1 ticks to 30 ticks between despawn
+
+    // Set all background color
+    for (uint16_t i = 0; i < strip.numPixels(); i++) {
+        strip.setPixelColor(i, strip.Color(0, 0, 0));
+    }
+
+    for (int i = 0; i < sparkCount; i++) {
+        int pix = random(0, strip.numPixels());
+        strip.setPixelColor(pix, strip.Color(sparkRed, sparkGreen, sparkBlue));
+    }
+
+    strip.show();
 
 }
