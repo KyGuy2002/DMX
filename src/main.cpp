@@ -147,7 +147,7 @@ void loop1() {
     neopixelGlowWireTick(16, doorAStrip, DOOR_A_MAX_PIXELS, ticksSinceLastGlowWireUpdateDoorAStrip, currentPixDoorAStrip); // Door A
     neopixelGlowWireTick(16, doorBStrip, DOOR_B_MAX_PIXELS, ticksSinceLastGlowWireUpdateDoorBStrip, currentPixDoorBStrip); // Door B
 
-    neopixelSparkRimTick(40, rimStrip, RIM_MAX_PIXELS); // Rim
+    neopixelSparkRimTick(24, rimStrip, RIM_MAX_PIXELS); // Rim
 
     delay(1);
 }
