@@ -1,0 +1,154 @@
+#include <U8g2lib.h>
+#include <MUIU8g2.h>
+#include <Wire.h>
+
+// Full framebuffer (best features, uses more RAM)
+U8G2_SSD1306_128X64_NONAME_F_2ND_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
+MUIU8G2 mui;
+
+/*
+  global variables which form the communication gateway between the user interface and the rest of the code
+*/
+uint8_t number_input = 2;       // variable where the user can input a number between 0 and 9
+uint8_t exit_code = 0;                  // return value from the menu system
+
+/* 
+  MUIF table: Each entry defines a field, which can be used in FDS to describe a form.
+*/
+
+
+muif_t muif_list[] = {
+  /* normal text style */
+  MUIF_U8G2_FONT_STYLE(0, u8g2_font_helvR08_tr),
+  
+  /* Leave the menu system */
+  MUIF_VARIABLE("LV",&exit_code,mui_u8g2_btn_exit_wm_fi),
+  
+  /* input for a number between 0 to 9 */
+  MUIF_U8G2_U8_MIN_MAX("IN", &number_input, 0, 9, mui_u8g2_u8_min_max_wm_mse_pi),
+  
+  /* MUI_LABEL is used to place fixed text on the screeen */
+  MUIF_LABEL(mui_u8g2_draw_text)
+};
+
+/*
+  The form definition string (fds) defines all forms and the fields on those forms.
+  A new form always starts with MUI_FORM(u). The form ends with the next MUI_FORM() or the end of the fds.
+  Inside the form use fields or the style command (MUI_STYLE)
+  The fields are placed on the form with
+    MUI_XY(id, x, y)                     Field 'id' without extra argument or text placed at the specified xy position
+    MUI_XYT(id, x, y, text)            Field 'id' with the specified test at position xy
+    MUI_XYA(id, x, y, a)                 Field 'id' with argument 'a' at position xy
+    MUI_XYAT(id, x, y, a, text)         Field 'id' with argument and text placed at position xy
+    MUI_LABEL(x, y, text)                 Place "text" on the form. Can be used only if "MUIF_LABEL(mui_u8g2_draw_text)" is available in MUIF table.
+
+*/
+
+
+fds_t fds_data[] MUI_PROGMEM = 
+MUI_FORM(1)
+MUI_STYLE(0)
+MUI_LABEL(5,12, "Countdown Time")
+MUI_LABEL(5,30, "Seconds:")
+MUI_XY("IN",60, 30)
+MUI_XYT("LV",64, 59, " OK ")
+;
+
+
+void setup() {
+  Wire1.setSCL(15);
+  Wire1.setSDA(14);
+  Wire1.begin();
+  Wire1.beginTransmission(0x3C);
+  u8g2.setI2CAddress(0x3C << 1);
+  u8g2.begin(/* menu_select_pin= */ 21, /* menu_next_pin= */ 20, /* menu_prev_pin= */ 19, /* menu_up_pin= */ U8X8_PIN_NONE, /* menu_down_pin= */ U8X8_PIN_NONE, /* menu_home_pin= */ 18);
+  mui.begin(u8g2, fds_data, muif_list, sizeof(muif_list)/sizeof(muif_t));
+}
+
+uint8_t is_redraw = 1;
+long milliseconds = 0;
+
+void loop(void) {
+
+  /* check whether the menu is active */
+  if ( mui.isFormActive() ) {
+
+    /* if so, then draw the menu */
+    if ( is_redraw ) {
+      u8g2.firstPage();
+      do {
+          mui.draw();
+      } while( u8g2.nextPage() );
+      is_redraw = 0;
+    }
+    
+    /* handle events */
+    switch(u8g2.getMenuEvent()) {
+      case U8X8_MSG_GPIO_MENU_HOME:
+        mui.leaveForm();
+        is_redraw = 1;
+        break;
+      case U8X8_MSG_GPIO_MENU_SELECT:
+        mui.sendSelect();
+        is_redraw = 1;
+        break;
+      case U8X8_MSG_GPIO_MENU_NEXT:
+        mui.nextField();
+        is_redraw = 1;
+        break;
+      case U8X8_MSG_GPIO_MENU_PREV:
+        mui.prevField();
+        is_redraw = 1;
+        break;
+    }
+    
+    /* did the user deactivate the menu? If so, start the countdown */
+    
+    if ( mui.isFormActive() )
+      milliseconds = ((long)number_input) * 1000;
+      
+  } else {
+
+
+
+    // Settings btn
+    if (false) {
+      mui.restoreForm();
+      return;
+    }
+
+    u8g2.clearBuffer();
+    
+    
+    // Header
+    u8g2.drawBox(0, 0, 128, 10);
+    u8g2.setDrawColor(0);
+    u8g2.setFont(u8g2_font_helvR08_tr);
+
+    int w = u8g2.getStrWidth("DMX Addr");
+    int x = (128 - w) / 2;
+    u8g2.setCursor(x, 9);
+    u8g2.print("DMX Addr");
+    u8g2.setDrawColor(1);
+
+    // Address
+    u8g2.setFont(u8g2_font_logisoso38_tr);
+    int w2 = u8g2.getStrWidth("129");
+    int x2 = (128 - w2) / 2;
+    u8g2.setCursor(x2, 55);
+    u8g2.print("129");
+
+
+    u8g2.setFont(u8g2_font_helvR08_tr);
+    u8g2.setFontPosBottom();
+    u8g2.setCursor(64, 100);
+
+    /* execute countdown */
+
+    u8g2.print(milliseconds);
+    u8g2.setFontPosBaseline();
+    u8g2.sendBuffer();
+    milliseconds -= 100;
+    delay(100);
+  }
+}
