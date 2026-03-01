@@ -1,0 +1,49 @@
+#include "AudioTools.h"
+// #include "AudioLibs/I2SStream.h"
+
+// ===== Audio format (match Raspberry Pi known-good) =====
+AudioInfo info(48000, 2, 16);
+
+// ===== Test tone source =====
+SineWaveGenerator<int16_t> sineWave(28000);
+GeneratedSoundStream<int16_t> sound(sineWave);
+
+// ===== I2S output =====
+I2SStream out;
+
+// Copies generated samples -> I2S
+StreamCopy copier(out, sound);
+
+void setup() {
+  Serial1.begin(115200);
+  while (!Serial1) {}
+  AudioToolsLogger.begin(Serial1, AudioToolsLogLevel::Info);
+
+  Serial1.println("Starting I2S...");
+
+  // Configure I2S TX
+  auto cfg = out.defaultConfig(TX_MODE);
+  cfg.copyFrom(info);
+
+  // Format (CRITICAL: PCM5102 expects Philips I2S timing)
+  cfg.i2s_format = I2S_STD_FORMAT;
+
+  // Master mode (Pico generates clocks)
+  cfg.is_master = true;
+
+  // Reduce underruns / clicking
+  cfg.buffer_size  = 2048;  // bytes
+  cfg.buffer_count = 8;
+
+  // Start I2S
+  out.begin(cfg);
+
+  // Start sine generator (A4=440Hz)
+  sineWave.begin(info, 440.0f);
+
+  Serial1.println("Started.");
+}
+
+void loop() {
+  copier.copy();
+}
