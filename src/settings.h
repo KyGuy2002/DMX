@@ -1,1 +1,2 @@
 static const char *MP3_PATH = "/test.mp3";
+static byte MAC_ADDRESS[] = { 0x02, 0x3C, 0x2B, 0xCF, 0x07, 0xDF };
