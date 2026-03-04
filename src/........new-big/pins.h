@@ -26,7 +26,6 @@ static const int DMX_MODE_PIN = 18;
 
 
 // =========== I2S Audio
-// NOTE: LCK/WS MUST BE BCK+1 (one more than BCK) [lck > bck]
-static const int AUDIO_LCK_PIN = 22;
-static const int AUDIO_DIN_PIN = 20;
-static const int AUDIO_BCK_PIN = 21;
+static const int AUDIO_LCK_PIN = 20;
+static const int AUDIO_DIN_PIN = 21;
+static const int AUDIO_BCK_PIN = 22;

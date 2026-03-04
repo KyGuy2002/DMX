@@ -68,7 +68,7 @@ void setup(void) {
   volume.setVolume(0.5);
   decoder.begin();
   copier.begin(decoder, audioFile);
-  Serial1.println("- [*] I2S Audio initialized successfully."); 
+  Serial1.println("- [*] I2S Audio initialized successfully.");
 
 }
 
