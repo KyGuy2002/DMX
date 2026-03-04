@@ -1,91 +1,80 @@
 #include <Arduino.h>
+#include "pins.h"
+#include "settings.h"
+
 #include <SPI.h>
 #include <SD.h>
-
 #include "AudioTools.h"
 #include "AudioTools/AudioCodecs/CodecMP3Helix.h"
 
 using namespace audio_tools;
 
-const int SD_CS_PIN = 13; // Pin for SD card chip select
-const int SD_MOSI_PIN = 15; // Pin for SD card MOSI
-const int SD_MISO_PIN = 12; // Pin for SD card MISO
-const int SD_CLK_PIN = 14; // Pin for SD card clock
 
-// MP3 file path on SD
-static const char *MP3_PATH = "/test.mp3";
-
-// ---------- AudioTools objects ----------
-I2SStream i2s;                                    // I2S sink
-MP3DecoderHelix mp3;                              // Helix MP3 decoder
+// ========== Audio Objects
+I2SStream i2s;
+MP3DecoderHelix mp3;
 VolumeStream volume(i2s);
-EncodedAudioStream decoder(&volume, &mp3);            // decoded PCM -> I2S
-StreamCopy copier;                                // copies file -> decoder
+EncodedAudioStream decoder(&volume, &mp3);
+StreamCopy copier;
 File audioFile;
 
-// Arduino Setup
+
 void setup(void) {  
-  // Open Serial 
   Serial1.begin(115200);
-  delay(1500);
+  Serial1.println("Starting ProjectDMX Controller...");
 
 
-  //  ================ SD Card Initialization ================
-  SPI1.setSCK(SD_CLK_PIN);  // CLK
-  SPI1.setTX(SD_MOSI_PIN);  // MOSI
-  SPI1.setRX(SD_MISO_PIN);  // MISO
 
-  if (!SD.begin(SD_CS_PIN, SPI1)) {  // CS
-    Serial1.println("SD init failed!");
-    while (1) {
-      Serial1.println("SD init failed!");
-      delay(1000);  // wait for a second
-    }
-  }
-  Serial1.println("initialization done.");
-  // =====================================================
+  // // ========== SPI Init
+  // SPI.setSCK(SCK_PIN);
+  // SPI.setTX(MOSI_PIN);
+  // SPI.setRX(MISO_PIN);
 
 
-  audioFile = SD.open(MP3_PATH, FILE_READ);
-  if (!audioFile) {
-    Serial1.println("Failed to open MP3 file: " + String(MP3_PATH));
-    while (true) delay(1000);
-  }
-  
-  
-  // =============== I2S Initialization ================
-  Serial1.println("starting I2S...");
+
+  // // ========== SD Card Initialization
+  // if (!SD.begin(SD_CS_PIN, SPI)) {
+  //   Serial1.println("- [X] SD init failed!");
+  //   while (true) delay(500);
+  // }
+  // Serial1.println("- [*] SD Card initialized successfully.");
+
+
+
+  // // ========== Open MP3 File
+  // audioFile = SD.open(MP3_PATH, FILE_READ);
+  // if (!audioFile) {
+  //   Serial1.println("- [X] Failed to open MP3 file: " + String(MP3_PATH));
+  //   while (true) delay(500);
+  // }
+  // Serial1.println("- [*] MP3 file opened successfully.");
+
+
+
+  // ========== I2S Initialization
   I2SConfig config = i2s.defaultConfig(TX_MODE);
   config.sample_rate = 48000;
   config.bits_per_sample = 16;
   config.channels = 2;
   config.buffer_size = 2048;
-
-  config.pin_bck = 6;
-  config.pin_ws = 7;
-  config.pin_data = 8;
-
-  Serial1.printf("Free heap: %u\n", rp2040.getFreeHeap());
+  config.pin_bck = AUDIO_BCK_PIN;
+  config.pin_ws = AUDIO_LCK_PIN;
+  config.pin_data = AUDIO_DIN_PIN;
   if (!i2s.begin(config)) {
-    Serial1.println("Failed to initialize I2S");
-    while (true) delay(1000);
+    Serial1.println("- [X] Failed to initialize I2S");
+    while (true) delay(500);
   }
-  // =====================================================
   decoder.addNotifyAudioChange(i2s);
-
-  // Decoder will drive audio format changes downstream
   volume.setVolume(0.5);
   decoder.begin();
-
-  // Start streaming: SD file -> MP3 decoder -> I2S
   copier.begin(decoder, audioFile);
+  Serial1.println("- [*] I2S Audio initialized successfully.");
 
-  Serial.println("Playing...");
 }
 
-// Arduino loop - copy sound to out 
+
+
 void loop() {
-  // copy() returns false when done or on error
   if (!copier.copy()) {
     Serial.println("Done (or copy error). Rewinding...");
     audioFile.seek(0);
