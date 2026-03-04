@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <FreeRTOS.h>
+#include <task.h>
 #include "pins.h"
 #include "settings.h"
 
