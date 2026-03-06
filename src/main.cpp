@@ -38,10 +38,10 @@ void setup(void) {
     while (true) delay(1000);
   }
 
-  // if (!initEthernet()) {
-  //   Serial1.println("FATAL: Ethernet initialization failed!");
-  //   while (true) delay(1000);
-  // }
+  if (!initEthernet()) {
+    Serial1.println("FATAL: Ethernet initialization failed!");
+    while (true) delay(1000);
+  }
 
   if (!initSDCard()) {
     Serial1.println("FATAL: SD Card initialization failed!");
@@ -60,14 +60,14 @@ void setup(void) {
   // ========== Create FreeRTOS Tasks
   Serial1.println("Creating FreeRTOS tasks...");
   
-  // Serial1.println("- HTTP Server task starting...");
-  // createHttpTask();
+  Serial1.println("- HTTP Server task starting...");
+  createHttpTask();
   
   Serial1.println("- Audio Playback task starting...");
   createAudioTask();
   
-  // Serial1.println("- mDNS task starting...");
-  // createMdnsTask();
+  Serial1.println("- mDNS task starting...");
+  createMdnsTask();
 
   Serial1.println();
   Serial1.println("======================================");
