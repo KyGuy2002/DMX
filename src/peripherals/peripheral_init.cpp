@@ -31,7 +31,7 @@ bool initSPI() {
 }
 
 bool initEthernet() {
-  // Generate MDNS name
+  // Generate MDNS name (used for url/hostname [pdmx-xxxx.local])
   snprintf(MDNS_NAME, sizeof(MDNS_NAME), "pdmx-%02x%02x", MAC_ADDRESS[4], MAC_ADDRESS[5]);
   
   Ethernet.setCsPin(ETH_CS_PIN);
@@ -43,15 +43,25 @@ bool initEthernet() {
   }
   
   server.begin();
-  mdns.begin(Ethernet.localIP(), MDNS_NAME);
-  mdns.addServiceRecord(MDNS_NAME, 80, MDNSServiceTCP);
+  if (!mdns.begin(Ethernet.localIP(), MDNS_NAME)) {
+    Serial1.println("- [X] mDNS responder init failed!");
+    return false;
+  }
+
+  char SERVICE_NAME[30]; // Used for pretty mDNS service name like "ProjectDMX xxxx" (._http part is not shown on mDNS clients but required)
+  snprintf(SERVICE_NAME, sizeof(SERVICE_NAME), "ProjectDMX %02x%02x._http", MAC_ADDRESS[4], MAC_ADDRESS[5]);
+  Serial1.println(SERVICE_NAME);
+  if (!mdns.addServiceRecord(SERVICE_NAME, 80, MDNSServiceTCP)) {
+    Serial1.println("- [X] mDNS HTTP service registration failed!");
+    return false;
+  }
   
   Serial1.println("- [*] Ethernet initialized successfully.");
   Serial1.print("      IP Address: ");
   Serial1.println(Ethernet.localIP());
   Serial1.print("      Hostname: ");
   Serial1.print(MDNS_NAME);
-  Serial1.println(" (.local) (.lan)");
+  Serial1.println(" (.local)");
   
   return true;
 }

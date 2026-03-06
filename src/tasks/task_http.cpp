@@ -16,7 +16,10 @@ void httpServerTask(void *pvParameters) {
 
 
     // Skip if mutex not available
-    if(xSemaphoreTake(xSPIMutex, portMAX_DELAY) != pdTRUE) vTaskDelay(pdMS_TO_TICKS(10));
+    if (xSemaphoreTake(xSPIMutex, pdMS_TO_TICKS(20)) != pdTRUE) {
+      vTaskDelay(pdMS_TO_TICKS(10));
+      continue;
+    }
 
 
 

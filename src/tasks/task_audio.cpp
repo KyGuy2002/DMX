@@ -54,7 +54,10 @@ void audioPlaybackTask(void *pvParameters) {
 
 
       // Skip if mutex not available
-    if(xSemaphoreTake(xSPIMutex, portMAX_DELAY) != pdTRUE) vTaskDelay(pdMS_TO_TICKS(10));
+      if (xSemaphoreTake(xSPIMutex, pdMS_TO_TICKS(20)) != pdTRUE) {
+        vTaskDelay(pdMS_TO_TICKS(10));
+        continue;
+      }
 
       // Copy audio data
       if (!copier.copy()) {
@@ -67,8 +70,8 @@ void audioPlaybackTask(void *pvParameters) {
       // Give mutex back
       xSemaphoreGive(xSPIMutex);
 
-      // Yield to allow system responsiveness
-      taskYIELD();
+      // Briefly block to allow lower-priority networking tasks to run
+      vTaskDelay(pdMS_TO_TICKS(1));
     } else {
       // If not playing, give other tasks time
       vTaskDelay(pdMS_TO_TICKS(100));

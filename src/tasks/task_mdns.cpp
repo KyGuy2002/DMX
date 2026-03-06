@@ -8,9 +8,10 @@ void mdnsTask(void *pvParameters) {
   Serial1.println("[MDNS Task] Started");
   
   while (1) {
-
-    // Skip if mutex not available
-    if(xSemaphoreTake(xSPIMutex, portMAX_DELAY) != pdTRUE) vTaskDelay(pdMS_TO_TICKS(10));
+    if (xSemaphoreTake(xSPIMutex, pdMS_TO_TICKS(20)) != pdTRUE) {
+      vTaskDelay(pdMS_TO_TICKS(10));
+      continue;
+    }
 
     // Run mDNS service
     mdns.run();
