@@ -9,6 +9,14 @@ void httpServerTask(void *pvParameters) {
   Serial1.println("[HTTP Task] Started");
   
   while (1) {
+
+
+
+    // Skip if mutex not available
+    if(xSemaphoreTake(xSPIMutex, portMAX_DELAY) != pdTRUE) vTaskDelay(pdMS_TO_TICKS(10));
+
+
+
     // Listen for incoming clients
     EthernetClient client = server.available();
     
@@ -68,6 +76,9 @@ void httpServerTask(void *pvParameters) {
       client.stop();
       Serial1.println("[HTTP Task] Client disconnected");
     }
+
+    // Give mutex back
+    xSemaphoreGive(xSPIMutex);
     
     // Yield to other tasks
     vTaskDelay(pdMS_TO_TICKS(HTTP_TASK_DELAY_MS));

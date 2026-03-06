@@ -1,1 +1,0 @@
-static const char *MP3_PATH = "/test.mp3";

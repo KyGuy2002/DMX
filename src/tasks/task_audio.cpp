@@ -18,6 +18,14 @@ void audioPlaybackTask(void *pvParameters) {
   
   // Small delay to ensure scheduler is fully running
   vTaskDelay(pdMS_TO_TICKS(100));
+
+
+  if(xSemaphoreTake(xSPIMutex, portMAX_DELAY) != pdTRUE) {
+    Serial1.println("[Audio Task] Failed to take SPI mutex during initialization!");
+    vTaskDelete(NULL);
+    return;
+  }
+
   
   // Open MP3 file
   Serial1.println("[Audio Task] Opening MP3 file: " + String(MP3_PATH));
@@ -37,9 +45,17 @@ void audioPlaybackTask(void *pvParameters) {
   audioInitialized = true;
   audioPlaying = true;
   Serial1.println("[Audio Task] Audio playback initialized and started.");
+
+  xSemaphoreGive(xSPIMutex);
   
   while (1) {
+
     if (audioPlaying && audioInitialized) {
+
+
+      // Skip if mutex not available
+    if(xSemaphoreTake(xSPIMutex, portMAX_DELAY) != pdTRUE) vTaskDelay(pdMS_TO_TICKS(10));
+
       // Copy audio data
       if (!copier.copy()) {
         Serial1.println("[Audio Task] Playback complete. Rewinding...");
@@ -47,6 +63,10 @@ void audioPlaybackTask(void *pvParameters) {
         copier.begin();
         vTaskDelay(pdMS_TO_TICKS(200));
       }
+
+      // Give mutex back
+      xSemaphoreGive(xSPIMutex);
+
       // Yield to allow system responsiveness
       taskYIELD();
     } else {

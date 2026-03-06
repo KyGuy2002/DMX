@@ -13,6 +13,9 @@
 
 using namespace audio_tools;
 
+// Mutex
+extern SemaphoreHandle_t xSPIMutex;
+
 // Global peripheral objects
 extern I2SStream i2s;
 extern MP3DecoderHelix mp3;

@@ -1,6 +1,11 @@
 #include "peripheral_init.h"
 #include "../rtos_config.h"
 
+
+// Mutex
+SemaphoreHandle_t xSPIMutex = xSemaphoreCreateMutex();
+
+
 // Global peripheral objects
 I2SStream i2s;
 MP3DecoderHelix mp3;
@@ -66,8 +71,8 @@ bool initI2SAudio() {
   config.sample_rate = 48000;
   config.bits_per_sample = 16;
   config.channels = 2;
-  config.buffer_size = 1280;  // Larger buffer for complex audio sections (~27ms at 48kHz)
-  config.buffer_count = 8;
+  config.buffer_size = AUDIO_TASK_STACK_SIZE;
+  // config.buffer_count = 8;
   config.pin_bck = AUDIO_BCK_PIN;
   config.pin_ws = AUDIO_LCK_PIN;
   config.pin_data = AUDIO_DIN_PIN;
