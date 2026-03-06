@@ -3,7 +3,7 @@
 
 // ========== Task Stack Sizes (in bytes)
 #define HTTP_TASK_STACK_SIZE        4096
-#define AUDIO_TASK_STACK_SIZE       8192
+#define AUDIO_TASK_STACK_SIZE       2048
 #define MDNS_TASK_STACK_SIZE        2048
 #define DMX_TASK_STACK_SIZE         2048
 

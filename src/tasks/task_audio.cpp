@@ -9,7 +9,7 @@ using namespace audio_tools;
 
 TaskHandle_t audioTaskHandle = NULL;
 static File audioFile;
-static StreamCopy copier;
+static StreamCopy copier(decoder, audioFile, AUDIO_TASK_STACK_SIZE);
 static bool audioInitialized = false;
 static bool audioPlaying = false;
 
@@ -32,7 +32,7 @@ void audioPlaybackTask(void *pvParameters) {
   Serial1.println("[Audio Task] MP3 file opened successfully.");
   
   // Initialize copier
-  copier.begin(decoder, audioFile);
+  copier.begin();
   
   audioInitialized = true;
   audioPlaying = true;
@@ -44,7 +44,7 @@ void audioPlaybackTask(void *pvParameters) {
       if (!copier.copy()) {
         Serial1.println("[Audio Task] Playback complete. Rewinding...");
         audioFile.seek(0);
-        copier.begin(decoder, audioFile);
+        copier.begin();
         vTaskDelay(pdMS_TO_TICKS(200));
       }
       // Yield to allow system responsiveness
@@ -78,7 +78,7 @@ void playAudioFile(const char *filepath) {
   
   audioFile = SD.open(filepath, FILE_READ);
   if (audioFile) {
-    copier.begin(decoder, audioFile);
+    copier.begin();
     audioPlaying = true;
     Serial1.println("[Audio Task] Playing: " + String(filepath));
   } else {
