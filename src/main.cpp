@@ -130,7 +130,7 @@ void myTask(void *pvParameters)
 
 void loop() {
   Serial1.println("main loop");
-  vTaskDelay(1000);
+  vTaskDelay(pdMS_TO_TICKS(1000));
   // if (!copier.copy()) {
   //   Serial.println("Done (or copy error). Rewinding...");
   //   audioFile.seek(0);
