@@ -94,7 +94,7 @@ void setup(void) {
   xTaskCreate(
     myTask,        // Task function
     "MyTask",      // Task name
-    2048 / 2,          // Stack size (words, not bytes)
+    2048 * 2,          // Stack size (words, not bytes)
     NULL,          // Parameters
     1,             // Priority
     NULL           // Task handle
