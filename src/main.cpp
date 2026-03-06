@@ -13,11 +13,13 @@ using namespace audio_tools;
 
 
 // ========== Audio Objects
+TaskHandle_t audioTaskHandle = NULL;
+File audioFile;
 I2SStream i2s;
 MP3DecoderHelix mp3;
-EncodedAudioStream decoder(&i2s, &mp3);
-StreamCopy copier;
-File audioFile;
+VolumeStream volume(i2s);
+EncodedAudioStream decoder(&volume, &mp3);
+StreamCopy copier(decoder, audioFile, 2048);
 
 void myTask(void *pvParameters);
 
@@ -68,7 +70,7 @@ void setup(void) {
   config.sample_rate = 48000;
   config.bits_per_sample = 16;
   config.channels = 2;
-  config.buffer_size = 2048;
+  config.buffer_size = 2048 * 2;
   config.pin_bck = AUDIO_BCK_PIN;
   config.pin_ws = AUDIO_LCK_PIN;
   config.pin_data = AUDIO_DIN_PIN;
@@ -77,8 +79,9 @@ void setup(void) {
     while (true) delay(1000);
   }
   decoder.addNotifyAudioChange(i2s);
+  volume.setVolume(0.5);
   decoder.begin();
-  copier.begin(decoder, audioFile);
+  copier.begin();
   Serial1.println("- [*] I2S Audio initialized successfully.");
 
 
@@ -94,11 +97,12 @@ void setup(void) {
   xTaskCreate(
     myTask,        // Task function
     "MyTask",      // Task name
-    2048 * 2,          // Stack size (words, not bytes)
+    2048 * 4,          // Stack size (words, not bytes)
     NULL,          // Parameters
-    1,             // Priority
-    NULL           // Task handle
+    configMAX_PRIORITIES - 1,             // Priority
+    &audioTaskHandle           // Task handle
   );
+  vTaskCoreAffinitySet(audioTaskHandle, (1u << 1));
 
   Serial1.println("made task");
 
@@ -121,7 +125,8 @@ void myTask(void *pvParameters)
       copier.begin(decoder, audioFile);
       vTaskDelay(pdMS_TO_TICKS(200));
     } else {
-      vTaskDelay(1); // or taskYIELD();
+      // vTaskDelay(1); // or taskYIELD();
+      // taskYIELD();
     }
   }
 }
