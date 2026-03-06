@@ -5,6 +5,9 @@
 
 TaskHandle_t httpTaskHandle = NULL;
 
+
+bool playing = true;
+
 void httpServerTask(void *pvParameters) {
   Serial1.println("[HTTP Task] Started");
   
@@ -23,50 +26,101 @@ void httpServerTask(void *pvParameters) {
     if (client) {
       Serial1.println("[HTTP Task] New client connected");
       
-      bool currentLineIsBlank = true;
-      while (client.connected()) {
-        if (client.available()) {
-          char c = client.read();
-          
-          // If you've gotten to the end of the line (received a newline
-          // character) and the line is blank, the HTTP request has ended
-          if (c == '\n' && currentLineIsBlank) {
-            // Send a standard HTTP response header
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-Type: text/html");
-            client.println("Connection: close");
-            client.println("Refresh: 5");
-            client.println();
-            client.println("<!DOCTYPE HTML>");
-            client.println("<html>");
-            client.println("<h1>ProjectDMX Controller</h1>");
-            client.print("<p>Hostname: ");
-            client.print(MDNS_NAME);
-            client.println("</p>");
-            client.print("<p>Uptime: ");
-            client.print(millis() / 1000);
-            client.println(" seconds</p>");
-            
-            // Output analog input pins
-            for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
-              int sensorReading = analogRead(analogChannel);
-              client.print("<p>Analog input ");
-              client.print(analogChannel);
-              client.print(" is ");
-              client.print(sensorReading);
-              client.println("</p>");
+      if (client) {
+        String currentLine = "";
+        while (client.connected()) {
+          if (client.available()) {
+            char c = client.read();
+            if (c == '\n') {
+              if (currentLine.length() == 0) {
+                // End of request, send response
+                client.println("HTTP/1.1 200 OK");
+                client.println("Content-Type: text/html");
+                client.println();
+                client.stop();
+                break;
+              } else {
+                // Parse first line for path: "GET /path HTTP/1.1"
+                if (currentLine.startsWith("GET")) {
+                  int firstSpace = currentLine.indexOf(' ');
+                  int secondSpace = currentLine.indexOf(' ', firstSpace + 1);
+                  String path = currentLine.substring(firstSpace + 1, secondSpace);
+                  Serial1.println("Requested Path: " + path);
+
+                  if (path == "/") {
+                    // Serve main page
+                    client.println("HTTP/1.1 200 OK");
+                    client.println("Content-Type: text/html");
+                    client.println();
+                    client.println("<html><body><h1>ProjectDMX Controller</h1><p>Welcome to the ProjectDMX Controller HTTP Interface!</p><br/><br/><br/><button onclick=\"window.location.href='/api/volume/up'\">Volume Up</button><button onclick=\"window.location.href='/api/volume/down'\">Volume Down</button><button onclick=\"window.location.href='/api/music/pause'\">Pause</button></body></html>");
+                  } else if (path == "/api/volume/up") {
+                    // Trigger volume up action
+                    Serial1.println("========= Volume up button pressed");
+
+
+                    // Actually increase volume (volume range is 0.0 to 1.0)
+                    float currentVol = volume.volume();
+                    float newVol = min(currentVol + 0.1f, 1.0f); // Increment by 0.1, cap at 1.0
+                    volume.setVolume(newVol);
+                    Serial1.print("Volume: ");
+                    Serial1.print(currentVol);
+                    Serial1.print(" -> ");
+                    Serial1.println(newVol);
+
+
+                    // Redirect back to main page
+                    client.println("HTTP/1.1 302 Found");
+                    client.println("Location: /");
+                  }
+                   else if (path == "/api/volume/down") {
+                    // Trigger volume down action
+                    Serial1.println("========= Volume down button pressed");
+
+
+                    // Actually increase volume (volume range is 0.0 to 1.0)
+                    float currentVol = volume.volume();
+                    float newVol = max(currentVol - 0.1f, 0.0f); // Decrement by 0.1, cap at 0.0
+                    volume.setVolume(newVol);
+                    Serial1.print("Volume: ");
+                    Serial1.print(currentVol);
+                    Serial1.print(" -> ");
+                    Serial1.println(newVol);
+
+
+                    // Redirect back to main page
+                    client.println("HTTP/1.1 302 Found");
+                    client.println("Location: /");
+                  }
+                  else if (path == "/api/music/pause") {
+                    // Trigger pause action
+                    Serial1.println("========= Pause button pressed");
+
+
+                    // Actually increase volume (volume range is 0.0 to 1.0)
+                    if (playing) {
+                      decoder.end();
+                      Serial1.println("Music paused");
+                      playing = false;
+                    } else {
+                      decoder.begin();
+                      Serial1.println("Music resumed");
+                      playing = true;
+                    }
+
+
+                    // Redirect back to main page
+                    client.println("HTTP/1.1 302 Found");
+                    client.println("Location: /");
+                  }
+                }
+                currentLine = "";
+              }
+            } else if (c != '\r') {
+              currentLine += c; // Build line
             }
-            
-            client.println("</html>");
-            break;
-          }
-          
-          if (c == '\n') {
-            currentLineIsBlank = true;
-          } else if (c != '\r') {
-            currentLineIsBlank = false;
           }
         }
+        client.stop();
       }
       
       // Give the web browser time to receive the data
