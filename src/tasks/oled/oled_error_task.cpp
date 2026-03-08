@@ -11,12 +11,12 @@ void createOLEDErrorTask(char *title, char *desc) {
     strncpy(desc, desc, sizeof(desc) - 1);
     desc[sizeof(desc) - 1] = '\0';
     xTaskCreate(
-        oledErrorTask,             // Task function
-        "OLED ErrorTask",    // Task name
-        2048,                     // Stack size (bytes)
-        NULL,                     // Parameters
-        3,                        // Priority
-        NULL
+      oledErrorTask,             // Task function
+      "OLED ErrorTask",    // Task name
+      2048,                     // Stack size (bytes)
+      NULL,                     // Parameters
+      3,                        // Priority
+      NULL
     );
 }
 
