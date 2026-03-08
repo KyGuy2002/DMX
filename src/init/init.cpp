@@ -14,6 +14,8 @@
 #include "../tasks/oled/oled_task.h"
 #include "../tasks/oled/oled_error_task.h"
 
+#include "../tasks/audio/music_task.h"
+
 QueueHandle_t g_oledQueue = nullptr;
 
 void createWatchdogTask();
@@ -50,8 +52,7 @@ void startRegularTasks() {
 
   Serial1.println("====Initialization Complete.");
   createOLEDTask();
-
-  // createAudioTask();
+  createMusicTask();
 
 }
 
@@ -76,7 +77,7 @@ void watchdogTask(void *pvParameters) {
     // Ethernet Error
     if (initSyncDoneError(INIT_ETHERNET_DONE, INIT_ETHERNET_OK)) {
       vTaskDelete(g_oledStartupSplashTaskHandle);
-      createOLEDErrorTask("Startup Failed", "Network Error");
+      createOLEDErrorTask((char*)"Startup Failed", (char*)"Network Error");
       vTaskDelete(NULL);
       return;
     }
