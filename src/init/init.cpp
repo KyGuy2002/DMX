@@ -9,6 +9,11 @@
 #include "../peripherals/sd/sd.h"
 #include "../peripherals/audio/audio.h"
 
+#include "../peripherals/oled/oled_loading_task.h"
+
+#include "../tasks/oled/oled_task.h"
+#include "../tasks/oled/oled_error_task.h"
+
 QueueHandle_t g_oledQueue = nullptr;
 
 void createWatchdogTask();
@@ -37,7 +42,16 @@ void initPeripherals() {
   createEthernetInitTask();
   createSDInitTask();
   createAudioInitTask();
+}
 
+
+void startRegularTasks() {
+  vTaskDelete(g_oledStartupSplashTaskHandle);
+
+  Serial1.println("====Initialization Complete.");
+  createOLEDTask();
+
+  // createAudioTask();
 
 }
 
@@ -58,16 +72,11 @@ void watchdogTask(void *pvParameters) {
   while (1) {
     
 
+    // TODO more error handling + retry
     // Ethernet Error
     if (initSyncDoneError(INIT_ETHERNET_DONE, INIT_ETHERNET_OK)) {
-
-      OledMsg msg{};
-      strncpy(msg.title, "Startup Failed", sizeof(msg.title) - 1);
-      msg.title[sizeof(msg.title) - 1] = '\0';
-      strncpy(msg.desc, "Network Error", sizeof(msg.desc) - 1);
-      msg.desc[sizeof(msg.desc) - 1] = '\0';
-
-      xQueueSend(g_oledQueue, &msg, pdMS_TO_TICKS(50)); // send to other task
+      vTaskDelete(g_oledStartupSplashTaskHandle);
+      createOLEDErrorTask("Startup Failed", "Network Error");
       vTaskDelete(NULL);
       return;
     }
@@ -80,13 +89,10 @@ void watchdogTask(void *pvParameters) {
       initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK))
     {
 
-      OledMsg msg{};
-      strncpy(msg.title, "Startup Complete", sizeof(msg.title) - 1);
-      msg.title[sizeof(msg.title) - 1] = '\0';
-
-      xQueueSend(g_oledQueue, &msg, pdMS_TO_TICKS(50)); // send to other task
+      startRegularTasks();
       vTaskDelete(NULL);
       return;
+
     }
 
 

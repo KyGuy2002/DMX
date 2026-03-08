@@ -5,6 +5,7 @@
 #include "../../init/init.h"
 #include "oled.h"
 
+extern TaskHandle_t g_oledStartupSplashTaskHandle;
 
 extern void createOLEDStartupSplashTask();
 

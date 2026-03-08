@@ -12,3 +12,4 @@ struct OledMsg {
 extern QueueHandle_t g_oledQueue;
 
 void initPeripherals();
+void startRegularTasks();
