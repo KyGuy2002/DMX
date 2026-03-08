@@ -14,7 +14,7 @@ void oledTask(void *pvParameters) {
     
     
     // Header
-    u8g2.drawBox(0, 0, 128, 10);
+    u8g2.drawBox(0, 0, 128, 11);
     u8g2.setDrawColor(0);
     u8g2.setFont(u8g2_font_helvR08_tr);
 

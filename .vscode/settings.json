@@ -9,5 +9,6 @@
         "span": "cpp",
         "regex": "cpp",
         "cstdint": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 }

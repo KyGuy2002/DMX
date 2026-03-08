@@ -1,3 +1,4 @@
+#pragma once
 
 // =========== SPI (SD Card, Ethernet)
 static const int MOSI_PIN = 3;
