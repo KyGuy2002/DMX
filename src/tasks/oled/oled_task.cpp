@@ -161,7 +161,10 @@ void oledTask(void *pvParameters) {
     // Regular dash stuff
     else {
       
-      oledDrawCenterText(u8g2, "ProjectDMX Home", 128, 32);
+      oledDrawCenterText(u8g2, "ProjectDMX Home", 128, 20);
+      oledDrawCenterText(u8g2, Ethernet.localIP().toString().c_str(), 128, 45);
+      oledDrawCenterText(u8g2, MDNS_NAME, 128, 56);
+
     }
     u8g2.sendBuffer();
 
