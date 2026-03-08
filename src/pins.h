@@ -16,6 +16,12 @@ static const int ETH_CS_PIN = 9;
 static const int I2C_SDA_PIN = 6;
 static const int I2C_SCL_PIN = 7;
 
+// Buttons
+static const int BUTTON_MENU_PIN = 8;
+static const int BUTTON_UP_PIN = 19;
+static const int BUTTON_DOWN_PIN = 15;
+static const int BUTTON_ENTER_PIN = 14;
+
 
 
 // =========== DMX

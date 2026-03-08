@@ -15,6 +15,9 @@ EthernetUDP udp;
 MDNS mdns(udp);
 EthernetServer server(80);
 char MDNS_NAME[10];
+// [ rotation, reset pin ]
+U8G2_SSD1306_128X64_NONAME_F_2ND_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
+// MUIU8G2 mui;
 
 bool initSPI() {
   SPI.setSCK(SCK_PIN);
@@ -98,4 +101,20 @@ bool initI2SAudio() {
   
   Serial1.println("- [*] I2S Audio initialized successfully.");
   return true;
+}
+
+bool initOLED() {
+
+  Wire1.setSCL(7);
+  Wire1.setSDA(6);
+  Wire1.begin();
+  Wire1.beginTransmission(0x3C);
+  u8g2.setI2CAddress(0x3C << 1);
+  // [ select, next, prev, up, down, home ]
+  u8g2.begin(BUTTON_ENTER_PIN, BUTTON_UP_PIN, BUTTON_DOWN_PIN, U8X8_PIN_NONE, U8X8_PIN_NONE, BUTTON_MENU_PIN);
+  // mui.begin(u8g2, fds_data, muif_list, sizeof(muif_list)/sizeof(muif_t));
+
+  Serial1.println("- [*] OLED initialized successfully.");
+  return true;
+
 }

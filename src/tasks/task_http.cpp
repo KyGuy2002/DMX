@@ -5,9 +5,6 @@
 
 TaskHandle_t httpTaskHandle = NULL;
 
-
-bool playing = true;
-
 void httpServerTask(void *pvParameters) {
   Serial1.println("[HTTP Task] Started");
   
@@ -100,15 +97,8 @@ void httpServerTask(void *pvParameters) {
 
 
                     // Actually increase volume (volume range is 0.0 to 1.0)
-                    if (playing) {
-                      decoder.end();
-                      Serial1.println("Music paused");
-                      playing = false;
-                    } else {
-                      decoder.begin();
-                      Serial1.println("Music resumed");
-                      playing = true;
-                    }
+                    decoder.end();
+                    Serial1.println("Music paused");
 
 
                     // Redirect back to main page

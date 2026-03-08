@@ -14,11 +14,13 @@
 
 // Peripheral initialization
 #include "peripherals/peripheral_init.h"
+#include "init/init.cpp"
 
 // Task modules
 #include "tasks/task_http.h"
 #include "tasks/task_audio.h"
 #include "tasks/task_mdns.h"
+#include "tasks/task_oled.h"
 
 void setup(void) {
   // ========== Serial Init
@@ -30,9 +32,21 @@ void setup(void) {
   Serial1.println("======================================");
   Serial1.println();
 
+
+  initPeripherals();
+
+
   // ========== Initialize Peripherals
   Serial1.println("Initializing peripherals...");
-  
+
+  if (!initOLED()) {
+    Serial1.println("FATAL: OLED initialization failed!");
+    while (true) delay(1000);
+  }
+
+  Serial1.println("- OLED task starting...");
+  createOLEDTask();
+
   if (!initSPI()) {
     Serial1.println("FATAL: SPI initialization failed!");
     while (true) delay(1000);
