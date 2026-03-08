@@ -20,6 +20,13 @@ void initPeripherals() {
   Serial1.println("Initializing peripherals...");
   initSyncCreate();
 
+
+  pinMode(BUTTON_MENU_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_UP_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_DOWN_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_MENU_PIN, INPUT_PULLUP);
+
+
   g_oledQueue = xQueueCreate(8, sizeof(OledMsg));
 
   createWatchdogTask();
