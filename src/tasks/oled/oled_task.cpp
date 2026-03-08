@@ -18,7 +18,8 @@ int lastModalAgeTicks = 999;
 
 void onVolumeUpPressed() {
   Serial1.println("========= Volume Up Pressed");
-  // TODO: Add your volume up logic here.
+  
+  if (volume.volume() < 1.0) volume.setVolume(volume.volume() + 0.1);
 
   lastModalAgeTicks = 0;
   strcpy(lastModalText, "Volume Up");
@@ -27,7 +28,8 @@ void onVolumeUpPressed() {
 
 void onVolumeDownPressed() {
   Serial1.println("========= Volume Down Pressed");
-  // TODO: Add your volume down logic here.
+  
+  if (volume.volume() > 0) volume.setVolume(volume.volume() - 0.1);
 
   lastModalAgeTicks = 0;
   strcpy(lastModalText, "Volume Down");
@@ -143,11 +145,10 @@ void oledTask(void *pvParameters) {
       // Progress bar
       u8g2.setDrawColor(1);
       int barSections = 10;
-      int filledSections = 3; // TEMP
+      int filledSections = volume.volume() * 10;
 
       int left = 16+(wallThick*2);
-      int right = (128-16)-(wallThick*2);
-      int maxWidth = right - left;
+      int maxWidth = 128 - ((4*wallThick) + 32);
       int secWidth = maxWidth / barSections;
       int finalWidth = secWidth * filledSections;
 
