@@ -2,8 +2,6 @@
 
 
 EthernetUDP udp;
-MDNS mdns(udp);
-EthernetServer server(80);
 char MDNS_NAME[10];
 
 
@@ -39,24 +37,6 @@ void ethernetInitTask(void *pvParameters) {
   
   if (Ethernet.begin(MAC_ADDRESS) == 0) {
     Serial1.println("- [X] Failed to initialize Ethernet: DHCP failed");
-    initSyncMarkDone(INIT_ETHERNET_DONE, false, INIT_ETHERNET_OK);
-    vTaskDelete(NULL);
-    return;
-  }
-  
-  server.begin();
-  if (!mdns.begin(Ethernet.localIP(), MDNS_NAME)) {
-    Serial1.println("- [X] Failed to initialize Ethernet: mDNS responder init failed!");
-    initSyncMarkDone(INIT_ETHERNET_DONE, false, INIT_ETHERNET_OK);
-    vTaskDelete(NULL);
-    return;
-  }
-
-  char SERVICE_NAME[30]; // Used for pretty mDNS service name like "ProjectDMX xxxx" (._http part is not shown on mDNS clients but required)
-  snprintf(SERVICE_NAME, sizeof(SERVICE_NAME), "ProjectDMX %02x%02x._http", MAC_ADDRESS[4], MAC_ADDRESS[5]);
-  Serial1.println(SERVICE_NAME);
-  if (!mdns.addServiceRecord(SERVICE_NAME, 80, MDNSServiceTCP)) {
-    Serial1.println("- [X] Failed to initialize Ethernet: mDNS HTTP service registration failed!");
     initSyncMarkDone(INIT_ETHERNET_DONE, false, INIT_ETHERNET_OK);
     vTaskDelete(NULL);
     return;

@@ -13,8 +13,9 @@
 
 #include "../tasks/oled/oled_task.h"
 #include "../tasks/oled/oled_error_task.h"
-
 #include "../tasks/audio/music_task.h"
+#include "../tasks/web/web_task.h"
+#include "../tasks/mdns/mdns_task.h"
 
 QueueHandle_t g_oledQueue = nullptr;
 
@@ -53,7 +54,8 @@ void startRegularTasks() {
   Serial1.println("====Initialization Complete.");
   createOLEDTask();
   createMusicTask();
-
+  // createWebTask();
+  // createMdnsTask();
 }
 
 

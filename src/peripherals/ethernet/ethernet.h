@@ -5,6 +5,7 @@
 #include "settings.h"
 #include "../../init/sync.h"
 
+extern EthernetUDP udp;
 extern char MDNS_NAME[10];
 
 extern void createEthernetInitTask();
