@@ -21,8 +21,8 @@ void ethernetInitTask(void *pvParameters) {
 
 
   // Wait for SD init
-  if (!initSyncWaitOk(INIT_SPI_DONE, INIT_SPI_OK)) {
-    Serial1.println("- [X] Failed to initialize Ethernet: SPI init timeout");
+  if (!initSyncWaitOk(INIT_AUDIO_DONE, INIT_AUDIO_OK)) {
+    Serial1.println("- [X] Failed to initialize Ethernet: Audio init timeout");
     initSyncMarkDone(INIT_ETHERNET_DONE, false, INIT_ETHERNET_OK);
     vTaskDelete(NULL);
     return;

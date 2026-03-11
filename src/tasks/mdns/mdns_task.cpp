@@ -24,7 +24,6 @@ void createMdnsTask() {
 
   char SERVICE_NAME[30]; // Used for pretty mDNS service name like "ProjectDMX xxxx" (._http part is not shown on mDNS clients but required)
   snprintf(SERVICE_NAME, sizeof(SERVICE_NAME), "ProjectDMX %02x%02x._http", MAC_ADDRESS[4], MAC_ADDRESS[5]);
-  Serial1.println(SERVICE_NAME);
   if (!mdns.addServiceRecord(SERVICE_NAME, 80, MDNSServiceTCP)) {
     Serial1.println("- [X] Failed to initialize MDNS: mDNS HTTP service registration failed!");
     vTaskDelete(NULL);
@@ -58,6 +57,7 @@ void mdnsTask(void *pvParameters) {
     }
 
     
+    Serial1.println("[MDNS Task] Running MDNS task...");
     mdns.run();
 
 
@@ -66,7 +66,7 @@ void mdnsTask(void *pvParameters) {
     xSemaphoreGive(xSPIMutex);
 
     // Briefly block to allow lower-priority networking tasks to run
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(1000));
     
   }
 }

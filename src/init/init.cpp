@@ -42,9 +42,9 @@ void initPeripherals() {
   // Order/dependancies handled inside each init func
   createOLEDInitTask();
   createSPIInitTask();
-  createEthernetInitTask();
   createSDInitTask();
   createAudioInitTask();
+  // createEthernetInitTask();
 }
 
 
@@ -88,7 +88,7 @@ void watchdogTask(void *pvParameters) {
     if (initSyncDoneOk(INIT_SPI_DONE, INIT_SPI_OK) &&
       initSyncDoneOk(INIT_AUDIO_DONE, INIT_AUDIO_OK) &&
       initSyncDoneOk(INIT_OLED_DONE, INIT_OLED_OK) &&
-      initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
+      // initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
       initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK))
     {
 
