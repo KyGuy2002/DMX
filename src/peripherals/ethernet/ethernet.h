@@ -7,6 +7,7 @@
 
 extern EthernetUDP udp;
 extern char MDNS_NAME[10];
+extern SemaphoreHandle_t xEthernetMutex;
 
 extern void createEthernetInitTask();
 

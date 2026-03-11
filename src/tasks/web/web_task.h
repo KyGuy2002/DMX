@@ -4,7 +4,6 @@
 #include <Ethernet3.h>
 #include "../../rtos_config.h"
 
-#include "../../peripherals/spi/spi.h"
 #include "../../peripherals/ethernet/ethernet.h"
 #include "../../peripherals/audio/audio.h"
 

@@ -1,10 +1,8 @@
 #include <Arduino.h>
 #include "init.h"
 #include "sync.h"
-#include "queue.h"
 
 #include "../peripherals/oled/oled.h"
-#include "../peripherals/spi/spi.h"
 #include "../peripherals/ethernet/ethernet.h"
 #include "../peripherals/sd/sd.h"
 #include "../peripherals/audio/audio.h"
@@ -16,8 +14,6 @@
 #include "../tasks/audio/music_task.h"
 #include "../tasks/web/web_task.h"
 #include "../tasks/mdns/mdns_task.h"
-
-QueueHandle_t g_oledQueue = nullptr;
 
 void createWatchdogTask();
 void watchdogTask(void *pvParameters);
@@ -34,17 +30,13 @@ void initPeripherals() {
   pinMode(BUTTON_DOWN_PIN, INPUT_PULLUP);
   pinMode(BUTTON_MENU_PIN, INPUT_PULLUP);
 
-
-  g_oledQueue = xQueueCreate(8, sizeof(OledMsg));
-
   createWatchdogTask();
 
   // Order/dependancies handled inside each init func
-  createOLEDInitTask();
-  createSPIInitTask();
-  createSDInitTask();
-  createAudioInitTask();
-  // createEthernetInitTask();
+  // createOLEDInitTask();
+  // createSDInitTask();
+  // createAudioInitTask();
+  createEthernetInitTask();
 }
 
 
@@ -52,8 +44,8 @@ void startRegularTasks() {
   vTaskDelete(g_oledStartupSplashTaskHandle);
 
   Serial1.println("====Initialization Complete.");
-  createOLEDTask();
-  createMusicTask();
+  // createOLEDTask();
+  // createMusicTask();
   // createWebTask();
   // createMdnsTask();
 }
@@ -85,10 +77,10 @@ void watchdogTask(void *pvParameters) {
     }
 
     // Send success message if everything is done and successful
-    if (initSyncDoneOk(INIT_SPI_DONE, INIT_SPI_OK) &&
+    if (
       initSyncDoneOk(INIT_AUDIO_DONE, INIT_AUDIO_OK) &&
       initSyncDoneOk(INIT_OLED_DONE, INIT_OLED_OK) &&
-      // initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
+      initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
       initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK))
     {
 

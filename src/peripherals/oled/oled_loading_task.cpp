@@ -4,7 +4,6 @@
 
 TaskHandle_t g_oledStartupSplashTaskHandle = nullptr;
 
-
 void createOLEDStartupSplashTask() {
   xTaskCreate(
     oledStartupSplashTask,             // Task function
@@ -18,12 +17,11 @@ void createOLEDStartupSplashTask() {
 
 
 void oledStartupSplashTask(void *pvParameters) {
-    OledMsg rx{};
-    while (1) {
-        tickStartupSplashScreen();
+  while (1) {
+    tickStartupSplashScreen();
 
-        vTaskDelay(pdMS_TO_TICKS(50));
-    }
+    vTaskDelay(pdMS_TO_TICKS(50));
+  }
 }
 
 

@@ -17,13 +17,11 @@ void createSDInitTask() {
 void sdInitTask(void *pvParameters) {
 
 
-  // Wait for SPI init
-  if (!initSyncWaitOk(INIT_SPI_DONE, INIT_SPI_OK)) {
-    Serial1.println("- [X] Failed to initialize SD: SPI init timeout");
-    initSyncMarkDone(INIT_SD_DONE, false, INIT_SD_OK);
-    vTaskDelete(NULL);
-    return;
-  }
+  // SD uses SPI(0)
+  SPI.setSCK(SD_SCK_PIN);
+  SPI.setTX(SD_MOSI_PIN);
+  SPI.setRX(SD_MISO_PIN);
+  SPI.begin();
 
 
   if (!SD.begin(SD_CS_PIN, SPI)) {

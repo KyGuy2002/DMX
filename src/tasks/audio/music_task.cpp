@@ -7,14 +7,6 @@ static StreamCopy copier(decoder, audioFile, AUDIO_TASK_STACK_SIZE);
 
 
 void createMusicTask() {
-  
-
-
-  if(xSemaphoreTake(xSPIMutex, portMAX_DELAY) != pdTRUE) {
-    Serial1.println("[Audio Task] Failed to take SPI mutex during initialization!");
-    vTaskDelete(NULL);
-    return;
-  }
 
   
   // Open MP3 file
@@ -31,8 +23,6 @@ void createMusicTask() {
   
   // Initialize copier
   copier.begin();
-
-  xSemaphoreGive(xSPIMutex);
   
 
   xTaskCreate(
@@ -50,11 +40,6 @@ void createMusicTask() {
 void musicTask(void *pvParameters) {
   while (1) {
 
-    // Skip if mutex not available
-    if (xSemaphoreTake(xSPIMutex, pdMS_TO_TICKS(20)) != pdTRUE) {
-      vTaskDelay(pdMS_TO_TICKS(10));
-      continue;
-    }
 
     // Copy audio data
     if (!copier.copy()) {
@@ -64,8 +49,6 @@ void musicTask(void *pvParameters) {
       vTaskDelay(pdMS_TO_TICKS(200));
     }
 
-    // Give mutex back
-    xSemaphoreGive(xSPIMutex);
 
     // Briefly block to allow lower-priority networking tasks to run
     vTaskDelay(pdMS_TO_TICKS(1));

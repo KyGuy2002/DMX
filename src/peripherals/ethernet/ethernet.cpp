@@ -3,6 +3,7 @@
 
 EthernetUDP udp;
 char MDNS_NAME[10];
+SemaphoreHandle_t xEthernetMutex = xSemaphoreCreateMutex();
 
 
 void createEthernetInitTask() {
@@ -20,13 +21,11 @@ void createEthernetInitTask() {
 void ethernetInitTask(void *pvParameters) {
 
 
-  // Wait for SD init
-  if (!initSyncWaitOk(INIT_AUDIO_DONE, INIT_AUDIO_OK)) {
-    Serial1.println("- [X] Failed to initialize Ethernet: Audio init timeout");
-    initSyncMarkDone(INIT_ETHERNET_DONE, false, INIT_ETHERNET_OK);
-    vTaskDelete(NULL);
-    return;
-  }
+  // Eth uses SPI1
+  SPI1.setSCK(ETH_SCK_PIN);
+  SPI1.setTX(ETH_MOSI_PIN);
+  SPI1.setRX(ETH_MISO_PIN);
+  SPI1.begin();
 
 
   // Generate MDNS name (used for url/hostname [pdmx-xxxx.local])

@@ -6,7 +6,6 @@
 
 #include "../../peripherals/audio/audio.h"
 #include "../../peripherals/sd/sd.h"
-#include "../../peripherals/spi/spi.h"
 
 
 extern void createMusicTask();

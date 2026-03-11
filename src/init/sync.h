@@ -4,13 +4,11 @@
 #include <event_groups.h>
 
 enum InitBit : EventBits_t {
-  INIT_SPI_DONE   = (1 << 0),
   INIT_AUDIO_DONE = (1 << 1),
   INIT_OLED_DONE  = (1 << 2),
   INIT_ETHERNET_DONE   = (1 << 3),
   INIT_SD_DONE    = (1 << 4),
 
-  INIT_SPI_OK     = (1 << 8),
   INIT_AUDIO_OK   = (1 << 9),
   INIT_OLED_OK    = (1 << 10),
   INIT_ETHERNET_OK     = (1 << 11),

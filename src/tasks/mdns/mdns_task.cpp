@@ -8,8 +8,8 @@ void createMdnsTask() {
   
 
 
-  if(xSemaphoreTake(xSPIMutex, portMAX_DELAY) != pdTRUE) {
-    Serial1.println("[MDNS Task] Failed to take SPI mutex during initialization!");
+  if(xSemaphoreTake(xEthernetMutex, portMAX_DELAY) != pdTRUE) {
+    Serial1.println("[MDNS Task] Failed to take Ethernet mutex during initialization!");
     vTaskDelete(NULL);
     return;
   }
@@ -32,7 +32,7 @@ void createMdnsTask() {
   Serial1.println("[MDNS Task] MDNS server started");
   
 
-  xSemaphoreGive(xSPIMutex);
+  xSemaphoreGive(xEthernetMutex);
   
 
   xTaskCreate(
@@ -51,7 +51,7 @@ void mdnsTask(void *pvParameters) {
   while (1) {
 
     // Skip if mutex not available
-    if (xSemaphoreTake(xSPIMutex, pdMS_TO_TICKS(20)) != pdTRUE) {
+    if (xSemaphoreTake(xEthernetMutex, pdMS_TO_TICKS(20)) != pdTRUE) {
       vTaskDelay(pdMS_TO_TICKS(10));
       continue;
     }
@@ -63,7 +63,7 @@ void mdnsTask(void *pvParameters) {
 
 
     // Give mutex back
-    xSemaphoreGive(xSPIMutex);
+    xSemaphoreGive(xEthernetMutex);
 
     // Briefly block to allow lower-priority networking tasks to run
     vTaskDelay(pdMS_TO_TICKS(1000));

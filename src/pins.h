@@ -1,15 +1,17 @@
 #pragma once
 
-// =========== SPI (SD Card, Ethernet)
-static const int MOSI_PIN = 3;
-static const int MISO_PIN = 4;
-static const int SCK_PIN = 2;
 
-// SD Card
+// SD Card (SPI(0))
+static const int SD_MOSI_PIN = 3;
+static const int SD_MISO_PIN = 4;
+static const int SD_SCK_PIN = 2;
 static const int SD_CS_PIN = 5;
 
-// Ethernet
-static const int ETH_CS_PIN = 9;
+// Ethernet (SPI1) [Seperate Bus]
+static const int ETH_MISO_PIN = 12;
+static const int ETH_SCK_PIN = 10;
+static const int ETH_MOSI_PIN = 11;
+static const int ETH_CS_PIN = 13;
 
 
 
