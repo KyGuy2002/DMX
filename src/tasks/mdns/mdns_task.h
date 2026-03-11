@@ -7,7 +7,7 @@
 
 #include "../../peripherals/ethernet/ethernet.h"
 
-
+extern MDNS mdns;
 extern void createMdnsTask();
 
 void mdnsTask(void *pvParameters);

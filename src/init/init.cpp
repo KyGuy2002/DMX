@@ -36,7 +36,7 @@ void initPeripherals() {
   createOLEDInitTask();
   createSDInitTask();
   createAudioInitTask();
-  // createEthernetInitTask();
+  createEthernetInitTask();
 }
 
 

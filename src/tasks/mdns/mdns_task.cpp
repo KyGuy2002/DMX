@@ -1,7 +1,6 @@
 #include "mdns_task.h"
 
 
-MDNS mdns(udp);
 
 
 void createMdnsTask() {

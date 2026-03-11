@@ -1,7 +1,6 @@
 #include "web_task.h"
 
 
-EthernetServer server(80);
 
 
 void createWebTask() {

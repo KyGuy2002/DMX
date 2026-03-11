@@ -7,7 +7,7 @@
 #include "../../peripherals/ethernet/ethernet.h"
 #include "../../peripherals/audio/audio.h"
 
-
+extern EthernetServer server;
 extern void createWebTask();
 
 void webTask(void *pvParameters);

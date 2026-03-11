@@ -5,6 +5,9 @@ EthernetUDP udp;
 char MDNS_NAME[10];
 SemaphoreHandle_t xEthernetMutex = xSemaphoreCreateMutex();
 
+EthernetServer server(80);
+MDNS mdns(udp);
+
 
 void createEthernetInitTask() {
   xTaskCreate(
@@ -40,6 +43,11 @@ void ethernetInitTask(void *pvParameters) {
     vTaskDelete(NULL);
     return;
   }
+
+
+  mdns.begin(Ethernet.localIP(), MDNS_NAME);
+  mdns.addServiceRecord("hello", 80, MDNSServiceTCP);
+
   
   Serial1.println("- [*] Ethernet initialized successfully.");
   Serial1.print("      IP Address: ");
