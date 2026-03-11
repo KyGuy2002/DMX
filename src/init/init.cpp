@@ -33,10 +33,10 @@ void initPeripherals() {
   createWatchdogTask();
 
   // Order/dependancies handled inside each init func
-  // createOLEDInitTask();
-  // createSDInitTask();
-  // createAudioInitTask();
-  createEthernetInitTask();
+  createOLEDInitTask();
+  createSDInitTask();
+  createAudioInitTask();
+  // createEthernetInitTask();
 }
 
 
@@ -44,8 +44,8 @@ void startRegularTasks() {
   vTaskDelete(g_oledStartupSplashTaskHandle);
 
   Serial1.println("====Initialization Complete.");
-  // createOLEDTask();
-  // createMusicTask();
+  createOLEDTask();
+  createMusicTask();
   // createWebTask();
   // createMdnsTask();
 }
@@ -80,7 +80,7 @@ void watchdogTask(void *pvParameters) {
     if (
       initSyncDoneOk(INIT_AUDIO_DONE, INIT_AUDIO_OK) &&
       initSyncDoneOk(INIT_OLED_DONE, INIT_OLED_OK) &&
-      initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
+      // initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
       initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK))
     {
 
