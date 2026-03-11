@@ -44,10 +44,6 @@ void ethernetInitTask(void *pvParameters) {
     return;
   }
 
-
-  mdns.begin(Ethernet.localIP(), MDNS_NAME);
-  mdns.addServiceRecord("hello", 80, MDNSServiceTCP);
-
   
   Serial1.println("- [*] Ethernet initialized successfully.");
   Serial1.print("      IP Address: ");

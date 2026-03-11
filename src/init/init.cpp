@@ -47,9 +47,16 @@ void startRegularTasks() {
   createOLEDTask();
   createMusicTask();
   // createWebTask();
-  // createMdnsTask();
-}
+  createMdnsTask();
 
+  // vTaskDelay(pdMS_TO_TICKS(60000));
+  // Serial1.println("========== doing mdns stuff");
+
+  // mdns.begin(Ethernet.localIP(), MDNS_NAME);
+  // mdns.addServiceRecord("hello", 80, MDNSServiceTCP);
+
+
+}
 
 void createWatchdogTask() {
   xTaskCreate(
@@ -80,7 +87,7 @@ void watchdogTask(void *pvParameters) {
     if (
       initSyncDoneOk(INIT_AUDIO_DONE, INIT_AUDIO_OK) &&
       initSyncDoneOk(INIT_OLED_DONE, INIT_OLED_OK) &&
-      // initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
+      initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
       initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK))
     {
 
