@@ -36,7 +36,7 @@ void artnetTask(void *pvParameters) {
   while (1) {
 
 
-    artnet.read();
+    artnet.parse();
 
 
     // Briefly block to allow lower-priority networking tasks to run
