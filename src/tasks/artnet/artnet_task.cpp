@@ -1,7 +1,7 @@
 #include "artnet_task.h"
 
 
-ArtnetReceiver artnet;
+Artnet artnet;
 
 
 
@@ -15,16 +15,17 @@ void createArtnetTask() {
   artnet.setArtPollReplyConfigShortName(SERVICE_NAME);
   artnet.begin();
 
+  artnet.subscribeArtDmxUniverse(0, artnetCallback);
 
-  Serial1.println("Artnet task created.");
-  
+
+  Serial1.println("Artnet callback created.");
 
   xTaskCreate(
     artnetTask,        // Task function
-    "Artnet",         // Task name
+    "ArtNet",         // Task name
     AUDIO_TASK_STACK_SIZE / sizeof(StackType_t), // Stack size (words; bytes configured in rtos_config)
     NULL,                     // Parameters
-    2,      // Priority (higher for audio)
+    2,      // Priority
     NULL
   );
   
@@ -35,11 +36,29 @@ void artnetTask(void *pvParameters) {
   while (1) {
 
 
-    
+    artnet.read();
 
 
     // Briefly block to allow lower-priority networking tasks to run
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(10));
     
   }
+}
+
+void artnetCallback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
+  Serial1.println("Received Art-Net DMX data");
+
+  // Skip if mutex not available
+  if (xSemaphoreTake(xDmxMutex, portMAX_DELAY) != pdTRUE) {
+    vTaskDelay(pdMS_TO_TICKS(10));
+    Serial1.println("==== Failed to take DMX mutex in Art-Net callback");
+    return;
+  }
+
+  // Shift DMX data by one position in the universe array
+  dmxBuffer[0] = 0; // DMX start code
+  memcpy(dmxBuffer + 1, data, size);
+
+  xSemaphoreGive(xDmxMutex);
+
 }

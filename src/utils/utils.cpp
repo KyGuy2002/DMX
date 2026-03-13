@@ -48,3 +48,22 @@ void oledDrawSpinner(U8G2 &u8g2, int centerX, int centerY, int radius, float ang
   int capY2 = centerY + sin(endAngle) * (radius - thickness/2);
   u8g2.drawDisc(capX2, capY2, thickness/2);
 }
+
+
+// Helper to allocate a 2D DMX array
+uint8_t **allocDMXArray(uint16_t universeCount) {
+  uint8_t **arr = new uint8_t*[universeCount];
+  for (uint16_t u = 0; u < universeCount; u++) {
+    arr[u] = new uint8_t[512]();
+  }
+  return arr;
+}
+
+
+// Helper to free 2D DMX array
+void freeDMXArray(uint8_t **arr, uint16_t universeCount) {
+  for (uint16_t u = 0; u < universeCount; u++) {
+    delete[] arr[u];
+  }
+  delete[] arr;
+}

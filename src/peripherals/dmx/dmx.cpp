@@ -1,6 +1,8 @@
 #include "dmx.h"
 
 DmxOutput dmxOutput;
+uint8_t dmxBuffer[512 + 1];
+SemaphoreHandle_t xDmxMutex = xSemaphoreCreateMutex();
 
 
 void createDmxInitTask() {

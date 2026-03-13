@@ -6,6 +6,8 @@
 
 
 extern DmxOutput dmxOutput;
+extern uint8_t dmxBuffer[512 + 1];
+extern SemaphoreHandle_t xDmxMutex;
 
 
 extern void createDmxInitTask();

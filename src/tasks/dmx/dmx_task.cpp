@@ -22,12 +22,22 @@ void createDmxTask() {
 void dmxTask(void *pvParameters) {
   while (1) {
 
+    // Skip if mutex not available
+    if (xSemaphoreTake(xDmxMutex, pdMS_TO_TICKS(20)) != pdTRUE) {
+      vTaskDelay(pdMS_TO_TICKS(10));
+      continue;
+    }
 
-    
+
+    dmxOutput.write(dmxBuffer, 512);
+
+    while (dmxOutput.busy()) {}
+
+    xSemaphoreGive(xDmxMutex);
 
 
     // Briefly block to allow lower-priority networking tasks to run
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(1));
     
   }
 }
