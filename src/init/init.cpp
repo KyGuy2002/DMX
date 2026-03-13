@@ -44,16 +44,10 @@ void startRegularTasks() {
   vTaskDelete(g_oledStartupSplashTaskHandle);
 
   Serial1.println("====Initialization Complete.");
-  // createOLEDTask();
+  createOLEDTask();
   createMusicTask();
   createWebTask();
   createMdnsTask();
-
-  // vTaskDelay(pdMS_TO_TICKS(60000));
-  // Serial1.println("========== doing mdns stuff");
-
-  // mdns.begin(Ethernet.localIP(), MDNS_NAME);
-  // mdns.addServiceRecord("hello", 80, MDNSServiceTCP);
 
 
 }
@@ -62,7 +56,7 @@ void createWatchdogTask() {
   xTaskCreate(
     watchdogTask,             // Task function
     "Watchdog",              // Task name
-    1024,                     // Stack size (bytes)
+    1024 / sizeof(StackType_t), // Stack size (words; 1024-byte intent)
     NULL,                     // Parameters
     4,                        // Priority
     NULL                      // Task handle

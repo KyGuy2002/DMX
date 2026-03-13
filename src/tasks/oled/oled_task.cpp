@@ -98,14 +98,18 @@ static void processVolumeButtonEvents(uint32_t eventMask) {
 
 
 void createOLEDTask() {
-  xTaskCreate(
+  BaseType_t created = xTaskCreate(
     oledTask,             // Task function
     "OLED Task",    // Task name
-    2048,                     // Stack size (bytes)
+    2048 / sizeof(StackType_t), // Stack size (words; 2048-byte intent)
     NULL,                     // Parameters
-    3,                        // Priority
+    1,                        // Priority
     &g_oledTaskHandle         // Task handle
   );
+
+  if (created != pdPASS) {
+    Serial1.println("[OLED Task] Failed to create task");
+  }
 }
 
 
@@ -118,9 +122,6 @@ void oledTask(void *pvParameters) {
 
   while (1) {
     uint32_t eventMask = 0;
-
-
-
 
 
 
@@ -175,5 +176,8 @@ void oledTask(void *pvParameters) {
     if (xTaskNotifyWait(0, 0xFFFFFFFF, &eventMask, pdMS_TO_TICKS(100)) == pdTRUE) {
       processVolumeButtonEvents(eventMask);
     }
+
+
+    vTaskDelay(pdMS_TO_TICKS(10));
   }
 }

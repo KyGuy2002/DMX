@@ -28,7 +28,7 @@ void createMusicTask() {
   xTaskCreate(
     musicTask,        // Task function
     "Music",         // Task name
-    AUDIO_TASK_STACK_SIZE,    // Stack size (bytes) - larger for audio processing
+    AUDIO_TASK_STACK_SIZE / sizeof(StackType_t), // Stack size (words; bytes configured in rtos_config)
     NULL,                     // Parameters
     AUDIO_TASK_PRIORITY,      // Priority (higher for audio)
     NULL

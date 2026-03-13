@@ -11,7 +11,7 @@ void createOLEDInitTask() {
   xTaskCreate(
     oledInitTask,             // Task function
     "OLED Init",              // Task name
-    2048,                     // Stack size (bytes)
+    2048 / sizeof(StackType_t), // Stack size (words; 2048-byte intent)
     NULL,                     // Parameters
     3,                        // Priority
     NULL                      // Task handle
