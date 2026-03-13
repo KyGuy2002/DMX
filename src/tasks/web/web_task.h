@@ -11,3 +11,5 @@ extern EthernetServer server;
 extern void createWebTask();
 
 void webTask(void *pvParameters);
+
+void processServer();

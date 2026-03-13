@@ -44,9 +44,9 @@ void startRegularTasks() {
   vTaskDelete(g_oledStartupSplashTaskHandle);
 
   Serial1.println("====Initialization Complete.");
-  createOLEDTask();
+  // createOLEDTask();
   createMusicTask();
-  // createWebTask();
+  createWebTask();
   createMdnsTask();
 
   // vTaskDelay(pdMS_TO_TICKS(60000));

@@ -7,31 +7,31 @@ void createMdnsTask() {
   
 
 
-  if(xSemaphoreTake(xEthernetMutex, portMAX_DELAY) != pdTRUE) {
-    Serial1.println("[MDNS Task] Failed to take Ethernet mutex during initialization!");
-    vTaskDelete(NULL);
-    return;
-  }
+  // if(xSemaphoreTake(xEthernetMutex, portMAX_DELAY) != pdTRUE) {
+  //   Serial1.println("[MDNS Task] Failed to take Ethernet mutex during initialization!");
+  //   vTaskDelete(NULL);
+  //   return;
+  // }
 
   
-  // Init
-  if (!mdns.begin(Ethernet.localIP(), MDNS_NAME)) {
-    Serial1.println("- [X] Failed to initialize MDNS!");
-    vTaskDelete(NULL);
-    return;
-  }
+  // // Init
+  // if (!mdns.begin(Ethernet.localIP(), MDNS_NAME)) {
+  //   Serial1.println("- [X] Failed to initialize MDNS!");
+  //   vTaskDelete(NULL);
+  //   return;
+  // }
 
-  char SERVICE_NAME[30]; // Used for pretty mDNS service name like "ProjectDMX xxxx" (._http part is not shown on mDNS clients but required)
-  snprintf(SERVICE_NAME, sizeof(SERVICE_NAME), "ProjectDMX %02x%02x._http", MAC_ADDRESS[4], MAC_ADDRESS[5]);
-  if (!mdns.addServiceRecord(SERVICE_NAME, 80, MDNSServiceTCP)) {
-    Serial1.println("- [X] Failed to initialize MDNS: mDNS HTTP service registration failed!");
-    vTaskDelete(NULL);
-    return;
-  }
-  Serial1.println("[MDNS Task] MDNS server started");
+  // char SERVICE_NAME[30]; // Used for pretty mDNS service name like "ProjectDMX xxxx" (._http part is not shown on mDNS clients but required)
+  // snprintf(SERVICE_NAME, sizeof(SERVICE_NAME), "ProjectDMX %02x%02x._http", MAC_ADDRESS[4], MAC_ADDRESS[5]);
+  // if (!mdns.addServiceRecord(SERVICE_NAME, 80, MDNSServiceTCP)) {
+  //   Serial1.println("- [X] Failed to initialize MDNS: mDNS HTTP service registration failed!");
+  //   vTaskDelete(NULL);
+  //   return;
+  // }
+  // Serial1.println("[MDNS Task] MDNS server started");
   
 
-  xSemaphoreGive(xEthernetMutex);
+  // xSemaphoreGive(xEthernetMutex);
   
 
   xTaskCreate(
@@ -48,21 +48,24 @@ void createMdnsTask() {
 
 void mdnsTask(void *pvParameters) {
   while (1) {
+    Serial1.println("[MDNS Task] LOOPING ---  Running MDNS task...");
 
     // Skip if mutex not available
-    if (xSemaphoreTake(xEthernetMutex, pdMS_TO_TICKS(20)) != pdTRUE) {
-      vTaskDelay(pdMS_TO_TICKS(10));
-      continue;
-    }
+    // if (xSemaphoreTake(xEthernetMutex, pdMS_TO_TICKS(20)) != pdTRUE) {
+    //   Serial1.println("[MDNS Task] Failed to take Ethernet mutex, skipping MDNS run");
+    //   vTaskDelay(pdMS_TO_TICKS(10));
+    //   continue;
+    // }
 
     
     Serial1.println("[MDNS Task] Running MDNS task...");
-    mdns.run();
+    // mdns.run();
+    Serial1.println("[MDNS Task 2] ran MDNS task...");
 
 
 
     // Give mutex back
-    xSemaphoreGive(xEthernetMutex);
+    // xSemaphoreGive(xEthernetMutex);
 
     // Briefly block to allow lower-priority networking tasks to run
     vTaskDelay(pdMS_TO_TICKS(1000));
