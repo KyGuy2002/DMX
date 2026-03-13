@@ -99,6 +99,8 @@ public:
   uint8_t getRtCount(); // get the retransmission count
   
   void macAddress(uint8_t mac[]); // get the MAC Address
+  // Compatibility alias for libraries targeting the stock Ethernet API.
+  inline void MACAddress(uint8_t mac[]) { macAddress(mac); }
   const char* macAddressReport(); // returns the the MAC Address as a string
 
   void setHostname(const char* hostname);

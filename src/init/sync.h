@@ -8,11 +8,13 @@ enum InitBit : EventBits_t {
   INIT_OLED_DONE  = (1 << 2),
   INIT_ETHERNET_DONE   = (1 << 3),
   INIT_SD_DONE    = (1 << 4),
+  INIT_DMX_DONE   = (1 << 5),
 
   INIT_AUDIO_OK   = (1 << 9),
   INIT_OLED_OK    = (1 << 10),
   INIT_ETHERNET_OK     = (1 << 11),
   INIT_SD_OK      = (1 << 12),
+  INIT_DMX_OK     = (1 << 13),
 };
 
 void initSyncCreate();

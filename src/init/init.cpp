@@ -6,6 +6,7 @@
 #include "../peripherals/ethernet/ethernet.h"
 #include "../peripherals/sd/sd.h"
 #include "../peripherals/audio/audio.h"
+#include "../peripherals/dmx/dmx.h"
 
 #include "../peripherals/oled/oled_loading_task.h"
 
@@ -14,6 +15,8 @@
 #include "../tasks/audio/music_task.h"
 #include "../tasks/web/web_task.h"
 #include "../tasks/mdns/mdns_task.h"
+#include "../tasks/artnet/artnet_task.h"
+#include "../tasks/dmx/dmx_task.h"
 
 void createWatchdogTask();
 void watchdogTask(void *pvParameters);
@@ -37,6 +40,7 @@ void initPeripherals() {
   createSDInitTask();
   createAudioInitTask();
   createEthernetInitTask();
+  createDmxInitTask();
 }
 
 
@@ -48,6 +52,8 @@ void startRegularTasks() {
   createMusicTask();
   createWebTask();
   createMdnsTask();
+  createArtnetTask();
+  createDmxTask();
 
 
 }
@@ -82,8 +88,9 @@ void watchdogTask(void *pvParameters) {
       initSyncDoneOk(INIT_AUDIO_DONE, INIT_AUDIO_OK) &&
       initSyncDoneOk(INIT_OLED_DONE, INIT_OLED_OK) &&
       initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
-      initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK))
-    {
+      initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK) &&
+      initSyncDoneOk(INIT_DMX_DONE, INIT_DMX_OK)
+    ) {
 
       startRegularTasks();
       vTaskDelete(NULL);

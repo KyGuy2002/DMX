@@ -51,7 +51,6 @@ void webTask(void *pvParameters) {
     }
     
     
-    Serial1.println("[Web Task] Running Web task...");
     processBigServer();
 
 
