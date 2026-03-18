@@ -35,18 +35,20 @@ void createArtnetTask() {
 void artnetTask(void *pvParameters) {
   while (1) {
 
-    Serial1.println("Refreshing artnet...");
     artnet.parse();
 
 
     // Briefly block to allow lower-priority networking tasks to run
-    vTaskDelay(pdMS_TO_TICKS(10));
+    vTaskDelay(pdMS_TO_TICKS(100));
     
   }
 }
 
 void artnetCallback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
-  Serial1.println("Received Art-Net DMX data");
+  Serial1.print(data[0]);
+  Serial1.print(", ");
+  Serial1.print(data[1]);
+  Serial1.println();
 
   // Skip if mutex not available
   if (xSemaphoreTake(xDmxMutex, portMAX_DELAY) != pdTRUE) {
