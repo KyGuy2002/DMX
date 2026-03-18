@@ -17,6 +17,7 @@
 #include "../tasks/mdns/mdns_task.h"
 #include "../tasks/artnet/artnet_task.h"
 #include "../tasks/dmx/dmx_task.h"
+#include "../tasks/modules/neo/neo_task.h"
 
 void createWatchdogTask();
 void watchdogTask(void *pvParameters);
@@ -54,6 +55,7 @@ void startRegularTasks() {
   createMdnsTask();
   createArtnetTask();
   createDmxTask();
+  createNeoTask();
 
 
 }

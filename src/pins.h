@@ -39,3 +39,15 @@ static const int DMX_MODE_PIN = 18;
 static const int AUDIO_LCK_PIN = 22;
 static const int AUDIO_DIN_PIN = 20;
 static const int AUDIO_BCK_PIN = 21;
+
+
+
+// =========== Modules
+static const int MODULE_A_PIN_1 = 9;
+static const int MODULE_A_PIN_2 = 26; // Bottom 1/4 Neo Dev Breadboard pin
+static const int MODULE_A_PIN_3 = 27;
+
+
+
+// ========== Inputs
+static const int INPUT_1_PIN = 28;
