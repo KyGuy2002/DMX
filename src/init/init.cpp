@@ -53,7 +53,7 @@ void startRegularTasks() {
   createWebTask();
   createMdnsTask();
   createArtnetTask();
-  // createDmxTask();
+  createDmxTask();
 
 
 }

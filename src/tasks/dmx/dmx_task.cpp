@@ -20,23 +20,28 @@ void createDmxTask() {
 
 
 void dmxTask(void *pvParameters) {
+  static uint8_t dmxFrameSnapshot[512];
+
   while (1) {
 
-    // Skip if mutex not available
+    // Take a quick snapshot of the DMX frame under mutex, then release immediately.
     if (xSemaphoreTake(xDmxMutex, pdMS_TO_TICKS(20)) != pdTRUE) {
-      vTaskDelay(pdMS_TO_TICKS(10));
+      vTaskDelay(pdMS_TO_TICKS(2));
       continue;
     }
 
-
-    dmxOutput.write(dmxBuffer, 512);
-
-    while (dmxOutput.busy()) {}
-
+    memcpy(dmxFrameSnapshot, dmxBuffer, sizeof(dmxFrameSnapshot));
     xSemaphoreGive(xDmxMutex);
 
+    dmxOutput.write(dmxFrameSnapshot, sizeof(dmxFrameSnapshot));
 
-    // Briefly block to allow lower-priority networking tasks to run
+    while (dmxOutput.busy()) {
+      // Cooperative wait so lower-priority tasks can run while transmission is in flight.
+      vTaskDelay(pdMS_TO_TICKS(1));
+    }
+
+
+    // Yield briefly before preparing the next frame.
     vTaskDelay(pdMS_TO_TICKS(1));
     
   }
