@@ -35,7 +35,7 @@ void createArtnetTask() {
 void artnetTask(void *pvParameters) {
   while (1) {
 
-
+    Serial1.println("Refreshing artnet...");
     artnet.parse();
 
 
