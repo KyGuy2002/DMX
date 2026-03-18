@@ -1,5 +1,7 @@
 #include "artnet_task.h"
 
+#include "../../peripherals/ethernet/ethernet.h"
+
 
 Artnet artnet;
 
@@ -13,7 +15,16 @@ void createArtnetTask() {
 
   artnet.setArtPollReplyConfigLongName(SERVICE_NAME);
   artnet.setArtPollReplyConfigShortName(SERVICE_NAME);
+
+  // Artnet shares the same Ethernet controller as web/mDNS; protect init with mutex.
+  if (xSemaphoreTake(xEthernetMutex, portMAX_DELAY) != pdTRUE) {
+    Serial1.println("[Artnet Task] Failed to take Ethernet mutex during initialization!");
+    vTaskDelete(NULL);
+    return;
+  }
+
   artnet.begin();
+  xSemaphoreGive(xEthernetMutex);
 
   artnet.subscribeArtDmxUniverse(0, artnetCallback);
 
@@ -35,11 +46,18 @@ void createArtnetTask() {
 void artnetTask(void *pvParameters) {
   while (1) {
 
+    if (xSemaphoreTake(xEthernetMutex, portMAX_DELAY) != pdTRUE) {
+      Serial1.println("[Artnet Task] Failed to take Ethernet mutex!");
+      vTaskDelay(pdMS_TO_TICKS(10));
+      continue;
+    }
+
     artnet.parse();
 
+    xSemaphoreGive(xEthernetMutex);
 
     // Briefly block to allow lower-priority networking tasks to run
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(20));
     
   }
 }
