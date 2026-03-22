@@ -8,6 +8,7 @@
 #include "../../peripherals/ethernet/ethernet.h"
 
 extern MDNS mdns;
+extern bool isTargetDeviceAvailable;  // Flag indicating pdmx-controller.local is reachable
 extern void createMdnsTask();
 
 void mdnsTask(void *pvParameters);

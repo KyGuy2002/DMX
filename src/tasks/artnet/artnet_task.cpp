@@ -63,10 +63,6 @@ void artnetTask(void *pvParameters) {
 }
 
 void artnetCallback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
-  Serial1.print(data[0]);
-  Serial1.print(", ");
-  Serial1.print(data[1]);
-  Serial1.println();
 
   // Skip if mutex not available
   if (xSemaphoreTake(xDmxMutex, portMAX_DELAY) != pdTRUE) {
