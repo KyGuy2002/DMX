@@ -46,8 +46,9 @@ static const int AUDIO_BCK_PIN = 21;
 static const int MODULE_A_PIN_1 = 9;
 static const int MODULE_A_PIN_2 = 26; // Bottom 1/4 Neo Dev Breadboard pin
 static const int MODULE_A_PIN_3 = 27;
+static const int MODULE_A_PIN_4 = 28; // Analog???
 
 
 
 // ========== Inputs
-static const int INPUT_1_PIN = 28;
+static const int INPUT_1_PIN = 40; // CHANGED FROM 29 TO 40 RP2040
