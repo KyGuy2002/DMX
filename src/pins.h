@@ -28,7 +28,7 @@ static const int ETH_CS_PIN = 13;
 
 // =========== OLED (I2C1)
 static const int I2C_SDA_PIN = 38;
-static const int I2C_SCL_PIN = 39;
+static const int I2C_SCL_PIN = 27; // 39
 
 
 
