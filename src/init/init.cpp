@@ -18,6 +18,7 @@
 #include "../tasks/artnet/artnet_task.h"
 #include "../tasks/dmx/dmx_task.h"
 #include "../tasks/modules/neo/neo_task.h"
+#include "../tasks/modules/fet/fet_task.h"
 #include "../tasks/input/bool_input/bool_input_task.h"
 
 void createWatchdogTask();
@@ -56,7 +57,8 @@ void startRegularTasks() {
   createMdnsTask();
   createArtnetTask();
   createDmxTask();
-  createNeoTask();
+  createNeoTask(); // Module C
+  createFetTask(); // Module D
   createBoolInputTask();
 
 
