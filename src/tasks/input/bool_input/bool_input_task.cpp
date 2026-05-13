@@ -17,7 +17,12 @@ void createBoolInputTask() {
 
 void boolInputTask(void *pvParameters) {
     // Initialize button pin as input with pull-up
-    pinMode(INPUT_1_PIN, INPUT_PULLUP);
+    pinMode(INPUT_1_PIN, INPUT);
+    pinMode(INPUT_2_PIN, INPUT);
+    pinMode(INPUT_3_PIN, INPUT);
+    pinMode(INPUT_4_PIN, INPUT);
+    pinMode(INPUT_5_PIN, INPUT);
+    pinMode(INPUT_6_PIN, INPUT);
     
     while (1) {
 
@@ -28,7 +33,17 @@ void boolInputTask(void *pvParameters) {
         Serial1.print("[");
         Serial1.print(currentMillis);
         Serial1.print("] Button State: ");
-        Serial1.println(analogRead(INPUT_1_PIN));
+        Serial1.print(digitalRead(INPUT_1_PIN));
+        Serial1.print(" ");
+        Serial1.print(digitalRead(INPUT_2_PIN));
+        Serial1.print(" ");
+        Serial1.print(digitalRead(INPUT_3_PIN));
+        Serial1.print(" ");
+        Serial1.print(digitalRead(INPUT_4_PIN));
+        Serial1.print(" ");
+        Serial1.print(digitalRead(INPUT_5_PIN));
+        Serial1.print(" ");
+        Serial1.println(digitalRead(INPUT_6_PIN));
 
 
         // Delay for a short period to debounce and avoid flooding the serial output
