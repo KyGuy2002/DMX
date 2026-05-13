@@ -65,56 +65,56 @@ void mdnsTask(void *pvParameters) {
     
     mdns.run();
     
-    // Periodically try to reach the target device to check if it's available
-    unsigned long currentTime = millis();
-    if ((currentTime - lastResolutionAttempt) > RESOLUTION_INTERVAL) {
-      lastResolutionAttempt = currentTime;
-      // Try to connect as a way to verify the name resolves and device is reachable
-      EthernetClient testClient;
-      testClient.setTimeout(200);
+    // // Periodically try to reach the target device to check if it's available
+    // unsigned long currentTime = millis();
+    // if ((currentTime - lastResolutionAttempt) > RESOLUTION_INTERVAL) {
+    //   lastResolutionAttempt = currentTime;
+    //   // Try to connect as a way to verify the name resolves and device is reachable
+    //   EthernetClient testClient;
+    //   testClient.setTimeout(200);
       
-      Serial1.println("[MDNS Task] Attempting to resolve pdmx-controller.local...");
+    //   Serial1.println("[MDNS Task] Attempting to resolve pdmx-controller.local...");
       
-      if (testClient.connect("pdmx-controller.local", 80)) {
-        // Try to send a small amount of data to verify the connection is real
-        testClient.println("GET / HTTP/1.1");
+    //   if (testClient.connect("pdmx-controller.local", 80)) {
+    //     // Try to send a small amount of data to verify the connection is real
+    //     testClient.println("GET / HTTP/1.1");
         
-        // Wait a moment for the remote to respond
-        vTaskDelay(pdMS_TO_TICKS(100));
+    //     // Wait a moment for the remote to respond
+    //     vTaskDelay(pdMS_TO_TICKS(100));
         
-        // Check if connection is still active
-        if (testClient.connected()) {
-          isTargetDeviceAvailable = true;
+    //     // Check if connection is still active
+    //     if (testClient.connected()) {
+    //       isTargetDeviceAvailable = true;
           
-          // Get and print the resolved IP
-          uint8_t remoteIP[4];
-          testClient.remoteIP(remoteIP);
+    //       // Get and print the resolved IP
+    //       uint8_t remoteIP[4];
+    //       testClient.remoteIP(remoteIP);
           
-          // Validate the IP isn't a broadcast or null address
-          if ((remoteIP[0] != 255 || remoteIP[1] != 255 || remoteIP[2] != 255 || remoteIP[3] != 255) &&
-              (remoteIP[0] != 0 || remoteIP[1] != 0 || remoteIP[2] != 0 || remoteIP[3] != 0)) {
-            Serial1.print("[MDNS Task] pdmx-controller.local resolved to ");
-            Serial1.print(remoteIP[0]);
-            Serial1.print(".");
-            Serial1.print(remoteIP[1]);
-            Serial1.print(".");
-            Serial1.print(remoteIP[2]);
-            Serial1.print(".");
-            Serial1.println(remoteIP[3]);
-          } else {
-            Serial1.println("[MDNS Task] Connection made but received invalid IP address");
-            isTargetDeviceAvailable = false;
-          }
-        } else {
-          isTargetDeviceAvailable = false;
-          Serial1.println("[MDNS Task] Connection dropped - device not responding");
-        }
-        testClient.stop();
-      } else {
-        isTargetDeviceAvailable = false;
-        Serial1.println("[MDNS Task] Failed to connect - pdmx-controller.local does not exist or is unreachable");
-      }
-    }
+    //       // Validate the IP isn't a broadcast or null address
+    //       if ((remoteIP[0] != 255 || remoteIP[1] != 255 || remoteIP[2] != 255 || remoteIP[3] != 255) &&
+    //           (remoteIP[0] != 0 || remoteIP[1] != 0 || remoteIP[2] != 0 || remoteIP[3] != 0)) {
+    //         Serial1.print("[MDNS Task] pdmx-controller.local resolved to ");
+    //         Serial1.print(remoteIP[0]);
+    //         Serial1.print(".");
+    //         Serial1.print(remoteIP[1]);
+    //         Serial1.print(".");
+    //         Serial1.print(remoteIP[2]);
+    //         Serial1.print(".");
+    //         Serial1.println(remoteIP[3]);
+    //       } else {
+    //         Serial1.println("[MDNS Task] Connection made but received invalid IP address");
+    //         isTargetDeviceAvailable = false;
+    //       }
+    //     } else {
+    //       isTargetDeviceAvailable = false;
+    //       Serial1.println("[MDNS Task] Connection dropped - device not responding");
+    //     }
+    //     testClient.stop();
+    //   } else {
+    //     isTargetDeviceAvailable = false;
+    //     Serial1.println("[MDNS Task] Failed to connect - pdmx-controller.local does not exist or is unreachable");
+    //   }
+    // }
 
 
 
