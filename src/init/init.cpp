@@ -20,6 +20,7 @@
 #include "../tasks/modules/neo/neo_task.h"
 #include "../tasks/modules/fet/fet_task.h"
 #include "../tasks/input/bool_input/bool_input_task.h"
+#include "../tasks/modules/rfid/rfid_task.h"
 
 void createWatchdogTask();
 void watchdogTask(void *pvParameters);
@@ -57,9 +58,10 @@ void startRegularTasks() {
   createMdnsTask();
   createArtnetTask();
   createDmxTask();
+  createBoolInputTask();
   createNeoTask(); // Module C
   createFetTask(); // Module D
-  createBoolInputTask();
+  createRfidTask(); // Module B
 
 
 }
