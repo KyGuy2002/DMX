@@ -40,27 +40,27 @@ void initPeripherals() {
   createWatchdogTask();
 
   // Order/dependancies handled inside each init func
-  createOLEDInitTask();
-  createSDInitTask();
-  createAudioInitTask();
-  createEthernetInitTask();
-  createDmxInitTask();
+  // createOLEDInitTask();
+  // createSDInitTask();
+  // createAudioInitTask();
+  // createEthernetInitTask();
+  // createDmxInitTask();
 }
 
 
 void startRegularTasks() {
-  vTaskDelete(g_oledStartupSplashTaskHandle);
+  // vTaskDelete(g_oledStartupSplashTaskHandle);
 
   Serial1.println("====Initialization Complete.");
-  createOLEDTask();
-  createMusicTask();
-  createWebTask();
-  createMdnsTask();
-  createArtnetTask();
-  createDmxTask();
-  createBoolInputTask();
-  createNeoTask(); // Module C
-  createFetTask(); // Module D
+  // createOLEDTask();
+  // createMusicTask();
+  // createWebTask();
+  // createMdnsTask();
+  // createArtnetTask();
+  // createDmxTask();
+  // createBoolInputTask();
+  // createNeoTask(); // Module C
+  // createFetTask(); // Module D
   createRfidTask(); // Module B
 
 
@@ -93,11 +93,12 @@ void watchdogTask(void *pvParameters) {
 
     // Send success message if everything is done and successful
     if (
-      initSyncDoneOk(INIT_AUDIO_DONE, INIT_AUDIO_OK) &&
-      initSyncDoneOk(INIT_OLED_DONE, INIT_OLED_OK) &&
-      initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
-      initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK) &&
-      initSyncDoneOk(INIT_DMX_DONE, INIT_DMX_OK)
+      true
+      // initSyncDoneOk(INIT_AUDIO_DONE, INIT_AUDIO_OK) &&
+      // initSyncDoneOk(INIT_OLED_DONE, INIT_OLED_OK) &&
+      // initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
+      // initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK) &&
+      // initSyncDoneOk(INIT_DMX_DONE, INIT_DMX_OK)
     ) {
 
       startRegularTasks();
