@@ -1,13 +1,13 @@
 import Header from "./layouts/Header.tsx"
+import ProjectPage from "./pages/ProjectPage.tsx"
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
       <Header/>
 
-      hello
+      <ProjectPage/>
     </>
   )
 }

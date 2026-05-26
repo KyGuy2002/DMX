@@ -16,6 +16,7 @@ export default function EditorMenubar() {
 
   return (
     <Menubar>
+
         <MenubarMenu>
             <MenubarTrigger>File</MenubarTrigger>
             <MenubarContent>
@@ -31,6 +32,22 @@ export default function EditorMenubar() {
                 <MenubarItem>Print</MenubarItem>
             </MenubarGroup>
             </MenubarContent>
+        </MenubarMenu>
+
+        <MenubarMenu>
+            <MenubarTrigger>Edit</MenubarTrigger>
+        </MenubarMenu>
+
+        <MenubarMenu>
+            <MenubarTrigger>View</MenubarTrigger>
+        </MenubarMenu>
+
+        <MenubarMenu>
+            <MenubarTrigger>Pattern</MenubarTrigger>
+        </MenubarMenu>
+
+        <MenubarMenu>
+            <MenubarTrigger>Help</MenubarTrigger>
         </MenubarMenu>
     </Menubar>
   )
