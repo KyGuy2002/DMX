@@ -1,10 +1,7 @@
 #include "neo_task.h"
 
 
-Adafruit_NeoPixel strip1(50, MODULE_C_PIN_1, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip2(50, MODULE_C_PIN_2, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip3(50, MODULE_C_PIN_3, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip4(50, MODULE_C_PIN_4, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip1(40, MODULE_C_PIN_3, NEO_GRB + NEO_KHZ800);
 
 
 void createNeoTask() {
@@ -14,18 +11,6 @@ void createNeoTask() {
   strip1.begin();
   strip1.show();
   strip1.setBrightness(100);
-
-  strip2.begin();
-  strip2.show();
-  strip2.setBrightness(100);
-
-  strip3.begin();
-  strip3.show();
-  strip3.setBrightness(100);
-
-  strip4.begin();
-  strip4.show();
-  strip4.setBrightness(100);
 
 
   xTaskCreate(
@@ -51,26 +36,19 @@ void neoTask(void *pvParameters) {
       continue;
     }
 
-    memcpy(dmxFrameSnapshot, dmxBuffer, sizeof(dmxFrameSnapshot));
+    memcpy(dmxFrameSnapshot, dmxBuffer[1], sizeof(dmxFrameSnapshot));
     xSemaphoreGive(xDmxMutex);
 
     
-
+    Serial1.println("universe 1, channel 1 value: " + String(dmxFrameSnapshot[1]));
     
     // Write Neopixel data
-    for (int i = 0; i < 50; i++) {
-      // uint16_t idx = i * 3;
-      uint16_t idx = 0;
+    for (int i = 0; i < 40; i++) {
+      uint16_t idx = i * 3;
       strip1.setPixelColor(i, dmxFrameSnapshot[idx + 1], dmxFrameSnapshot[idx + 2], dmxFrameSnapshot[idx + 3]);
-      strip2.setPixelColor(i, dmxFrameSnapshot[idx + 1], dmxFrameSnapshot[idx + 2], dmxFrameSnapshot[idx + 3]);
-      strip3.setPixelColor(i, dmxFrameSnapshot[idx + 1], dmxFrameSnapshot[idx + 2], dmxFrameSnapshot[idx + 3]);
-      strip4.setPixelColor(i, dmxFrameSnapshot[idx + 1], dmxFrameSnapshot[idx + 2], dmxFrameSnapshot[idx + 3]);
     }
 
     strip1.show();
-    strip2.show();
-    strip3.show();
-    strip4.show();
 
 
     // Yield briefly before preparing the next frame.

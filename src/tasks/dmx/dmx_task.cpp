@@ -30,7 +30,7 @@ void dmxTask(void *pvParameters) {
       continue;
     }
 
-    memcpy(dmxFrameSnapshot, dmxBuffer, sizeof(dmxFrameSnapshot));
+    memcpy(dmxFrameSnapshot, dmxBuffer[0], sizeof(dmxFrameSnapshot));
     xSemaphoreGive(xDmxMutex);
 
     dmxOutput.write(dmxFrameSnapshot, sizeof(dmxFrameSnapshot));

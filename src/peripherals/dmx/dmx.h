@@ -6,7 +6,7 @@
 
 
 extern DmxOutput dmxOutput;
-extern uint8_t dmxBuffer[512 + 1];
+extern uint8_t dmxBuffer[UNIVERSE_COUNT][512 + 1];
 extern SemaphoreHandle_t xDmxMutex;
 
 

@@ -66,7 +66,7 @@ static const int MODULE_D_PIN_1 = 19;
 
 // Module C
 static const int MODULE_C_PIN_4 = 7;
-static const int MODULE_C_PIN_3 = 9;
+static const int MODULE_C_PIN_3 = 9; // 1st Neo Output
 static const int MODULE_C_PIN_2 = 14;
 static const int MODULE_C_PIN_1 = 15;
 

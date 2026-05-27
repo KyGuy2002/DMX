@@ -26,7 +26,9 @@ void createArtnetTask() {
   artnet.begin();
   xSemaphoreGive(xEthernetMutex);
 
-  artnet.subscribeArtDmxUniverse(0, artnetCallback);
+  for (uint16_t universe = 0; universe < UNIVERSE_COUNT; ++universe) {
+    artnet.subscribeArtDmxUniverse(universe, artnetCallback);
+  }
 
 
   Serial1.println("Artnet callback created.");
@@ -71,9 +73,16 @@ void artnetCallback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &me
     return;
   }
 
-  // Shift DMX data by one position in the universe array
-  dmxBuffer[0] = 0; // DMX start code
-  memcpy(dmxBuffer + 1, data, size);
+  const uint16_t universeIndex = (static_cast<uint16_t>(metadata.net) << 8)
+                               | (static_cast<uint16_t>(metadata.subnet) << 4)
+                               | static_cast<uint16_t>(metadata.universe);
+
+  if (universeIndex < UNIVERSE_COUNT) {
+    memset(dmxBuffer[universeIndex], 0, sizeof(dmxBuffer[universeIndex]));
+    const uint16_t copySize = size > 512 ? 512 : size;
+    dmxBuffer[universeIndex][0] = 0; // DMX start code
+    memcpy(dmxBuffer[universeIndex] + 1, data, copySize);
+  }
 
   xSemaphoreGive(xDmxMutex);
 

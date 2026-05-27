@@ -36,7 +36,7 @@ void fetTask(void *pvParameters) {
       continue;
     }
 
-    memcpy(dmxFrameSnapshot, dmxBuffer, sizeof(dmxFrameSnapshot));
+    memcpy(dmxFrameSnapshot, dmxBuffer[1], sizeof(dmxFrameSnapshot));
     xSemaphoreGive(xDmxMutex);
 
     

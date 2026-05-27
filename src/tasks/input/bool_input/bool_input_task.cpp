@@ -32,7 +32,7 @@ void boolInputTask(void *pvParameters) {
         // Print the button state to Serial
         Serial1.print("[");
         Serial1.print(currentMillis);
-        Serial1.print("] Button State: ");
+        // Serial1.print("] Button State: ");
         Serial1.print(digitalRead(INPUT_1_PIN));
         Serial1.print(" ");
         Serial1.print(digitalRead(INPUT_2_PIN));
