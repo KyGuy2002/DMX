@@ -21,6 +21,7 @@
 #include "../tasks/modules/fet/fet_task.h"
 #include "../tasks/input/bool_input/bool_input_task.h"
 #include "../tasks/modules/rfid/rfid_task.h"
+#include "../tasks/modules/smoke/smoke_task.h"
 
 void createWatchdogTask();
 void watchdogTask(void *pvParameters);
@@ -62,6 +63,7 @@ void startRegularTasks() {
   createNeoTask(); // Module C
   createFetTask(); // Module D
   // createRfidTask(); // Module B
+  createSmokeTask(); // Module A
 
 
 }
