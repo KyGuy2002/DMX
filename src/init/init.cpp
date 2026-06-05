@@ -61,7 +61,7 @@ void startRegularTasks() {
   createBoolInputTask();
   createNeoTask(); // Module C
   createFetTask(); // Module D
-  createRfidTask(); // Module B
+  // createRfidTask(); // Module B
 
 
 }

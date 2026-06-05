@@ -20,7 +20,7 @@ void createDmxTask() {
 
 
 void dmxTask(void *pvParameters) {
-  static uint8_t dmxFrameSnapshot[512];
+  static uint8_t dmxTxFrame[512 + 1]; // DMX frame buffer (1 start code + 512 channels)
 
   while (1) {
 
@@ -30,10 +30,14 @@ void dmxTask(void *pvParameters) {
       continue;
     }
 
-    memcpy(dmxFrameSnapshot, dmxBuffer[0], sizeof(dmxFrameSnapshot));
+    
+
+    dmxTxFrame[0] = 0;
+    memcpy(&dmxTxFrame[1], dmxBuffer[0], 512 + 1);
+
     xSemaphoreGive(xDmxMutex);
 
-    dmxOutput.write(dmxFrameSnapshot, sizeof(dmxFrameSnapshot));
+    dmxOutput.write(dmxTxFrame, 512 + 1);
 
     while (dmxOutput.busy()) {
       // Cooperative wait so lower-priority tasks can run while transmission is in flight.

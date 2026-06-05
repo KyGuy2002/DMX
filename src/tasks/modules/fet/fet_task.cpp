@@ -41,10 +41,10 @@ void fetTask(void *pvParameters) {
 
     
 
-    analogWrite(MODULE_D_PIN_4, dmxFrameSnapshot[1]);
-    analogWrite(MODULE_D_PIN_3, dmxFrameSnapshot[2]);
-    analogWrite(MODULE_D_PIN_2, dmxFrameSnapshot[3]);
-    analogWrite(MODULE_D_PIN_1, dmxFrameSnapshot[4]);
+    analogWrite(MODULE_D_PIN_4, dmxFrameSnapshot[0]);
+    analogWrite(MODULE_D_PIN_3, dmxFrameSnapshot[1]);
+    analogWrite(MODULE_D_PIN_2, dmxFrameSnapshot[2]);
+    analogWrite(MODULE_D_PIN_1, dmxFrameSnapshot[3]);
     
 
 

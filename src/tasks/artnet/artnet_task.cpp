@@ -73,15 +73,10 @@ void artnetCallback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &me
     return;
   }
 
-  const uint16_t universeIndex = (static_cast<uint16_t>(metadata.net) << 8)
-                               | (static_cast<uint16_t>(metadata.subnet) << 4)
-                               | static_cast<uint16_t>(metadata.universe);
-
-  if (universeIndex < UNIVERSE_COUNT) {
-    memset(dmxBuffer[universeIndex], 0, sizeof(dmxBuffer[universeIndex]));
-    const uint16_t copySize = size > 512 ? 512 : size;
-    dmxBuffer[universeIndex][0] = 0; // DMX start code
-    memcpy(dmxBuffer[universeIndex] + 1, data, copySize);
+  if (metadata.universe < UNIVERSE_COUNT) {
+    memset(dmxBuffer[metadata.universe], 0, 512); // Clear existing data
+    const uint16_t copySize = size > 512 ? 512 : size; // Correct incoming data size if larger than DMX buffer
+    memcpy(dmxBuffer[metadata.universe], data, copySize);
   }
 
   xSemaphoreGive(xDmxMutex);

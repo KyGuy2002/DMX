@@ -30,20 +30,20 @@ void boolInputTask(void *pvParameters) {
         unsigned long currentMillis = millis();
 
         // Print the button state to Serial
-        Serial1.print("[");
-        Serial1.print(currentMillis);
-        // Serial1.print("] Button State: ");
-        Serial1.print(digitalRead(INPUT_1_PIN));
-        Serial1.print(" ");
-        Serial1.print(digitalRead(INPUT_2_PIN));
-        Serial1.print(" ");
-        Serial1.print(digitalRead(INPUT_3_PIN));
-        Serial1.print(" ");
-        Serial1.print(digitalRead(INPUT_4_PIN));
-        Serial1.print(" ");
-        Serial1.print(digitalRead(INPUT_5_PIN));
-        Serial1.print(" ");
-        Serial1.println(digitalRead(INPUT_6_PIN));
+        // Serial1.print("[");
+        // Serial1.print(currentMillis);
+        // // Serial1.print("] Button State: ");
+        // Serial1.print(digitalRead(INPUT_1_PIN));
+        // Serial1.print(" ");
+        // Serial1.print(digitalRead(INPUT_2_PIN));
+        // Serial1.print(" ");
+        // Serial1.print(digitalRead(INPUT_3_PIN));
+        // Serial1.print(" ");
+        // Serial1.print(digitalRead(INPUT_4_PIN));
+        // Serial1.print(" ");
+        // Serial1.print(digitalRead(INPUT_5_PIN));
+        // Serial1.print(" ");
+        // Serial1.println(digitalRead(INPUT_6_PIN));
 
 
         // Delay for a short period to debounce and avoid flooding the serial output
