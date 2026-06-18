@@ -1,15 +1,15 @@
-#include "dmx_task.h"
+#include "dmx_tx_task.h"
 
 
 
-void createDmxTask() {
+void createDmxTxTask() {
 
-  Serial1.println("DMX task created.");
+  Serial1.println("DMX tx task created.");
   
 
   xTaskCreate(
-    dmxTask,        // Task function
-    "Dmx",         // Task name
+    dmxTxTask,        // Task function
+    "Dmx Tx",         // Task name
     AUDIO_TASK_STACK_SIZE / sizeof(StackType_t), // Stack size (words; bytes configured in rtos_config)
     NULL,                     // Parameters
     2,      // Priority (higher for audio)
@@ -19,7 +19,7 @@ void createDmxTask() {
 }
 
 
-void dmxTask(void *pvParameters) {
+void dmxTxTask(void *pvParameters) {
   static uint8_t dmxTxFrame[512 + 1]; // DMX frame buffer (1 start code + 512 channels)
 
   while (1) {

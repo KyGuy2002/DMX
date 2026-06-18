@@ -6,6 +6,6 @@
 #include "../../peripherals/dmx/dmx.h"
 
 
-extern void createDmxTask();
+extern void createDmxTxTask();
 
-void dmxTask(void *pvParameters);
+void dmxTxTask(void *pvParameters);

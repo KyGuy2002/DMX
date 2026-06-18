@@ -16,7 +16,7 @@
 #include "../tasks/web/web_task.h"
 #include "../tasks/mdns/mdns_task.h"
 #include "../tasks/artnet/artnet_task.h"
-#include "../tasks/dmx/dmx_task.h"
+#include "../tasks/dmx_tx/dmx_tx_task.h"
 #include "../tasks/modules/neo/neo_task.h"
 #include "../tasks/modules/fet/fet_task.h"
 #include "../tasks/input/bool_input/bool_input_task.h"
@@ -44,8 +44,8 @@ void initPeripherals() {
   createOLEDInitTask();
   createSDInitTask();
   createAudioInitTask();
-  createEthernetInitTask();
-  createDmxInitTask();
+  if (INPUT_MODE == "NET") createEthernetInitTask();
+  createDmxInitTask(); // Handles tx and rx setup
 }
 
 
@@ -57,13 +57,13 @@ void startRegularTasks() {
   createMusicTask();
   createWebTask();
   createMdnsTask();
-  createArtnetTask();
-  createDmxTask();
+  if (INPUT_MODE == "NET") createArtnetTask();
+  if (INPUT_MODE == "NET") createDmxTxTask(); // Dmx Init handles input already
   createBoolInputTask();
   createNeoTask(); // Module C
   createFetTask(); // Module D
   // createRfidTask(); // Module B
-  createSmokeTask(); // Module A
+  // createSmokeTask(); // Module A
 
 
 }
@@ -86,7 +86,7 @@ void watchdogTask(void *pvParameters) {
 
     // TODO more error handling + retry
     // Ethernet Error
-    if (initSyncDoneError(INIT_ETHERNET_DONE, INIT_ETHERNET_OK)) {
+    if (INPUT_MODE == "NET" && initSyncDoneError(INIT_ETHERNET_DONE, INIT_ETHERNET_OK)) {
       vTaskDelete(g_oledStartupSplashTaskHandle);
       createOLEDErrorTask((char*)"Startup Failed", (char*)"Network Error");
       vTaskDelete(NULL);
@@ -97,7 +97,7 @@ void watchdogTask(void *pvParameters) {
     if (
       initSyncDoneOk(INIT_AUDIO_DONE, INIT_AUDIO_OK) &&
       initSyncDoneOk(INIT_OLED_DONE, INIT_OLED_OK) &&
-      initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK) &&
+      (INPUT_MODE != "NET" || initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK)) &&
       initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK) &&
       initSyncDoneOk(INIT_DMX_DONE, INIT_DMX_OK)
     ) {

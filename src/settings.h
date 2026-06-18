@@ -6,12 +6,19 @@
 // Audio settings
 static const char *MP3_PATH = "/test.mp3";
 
+
+// General settings
+// "NET" = ArtNet
+// "XLR" = XLR DMX Input
+static const char *INPUT_MODE = "XLR";
+
+
 // Network settings
 static byte MAC_ADDRESS[] = { 0x02, 0x3C, 0x2B, 0xCF, 0x07, 0xDF };
 
 static const int UNIVERSE_COUNT = 10; // Number of DMX universes to support
 
-
+// NeoPixel settings
 // NOTE: MUST BE IN UNIVERSE ORDER AND CONSECUTIVE
 static const int NEO_A_LENGTH = 100;
 static const int NEO_A_START_CHANNEL = 0;

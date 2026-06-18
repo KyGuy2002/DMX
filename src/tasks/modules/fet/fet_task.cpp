@@ -36,15 +36,18 @@ void fetTask(void *pvParameters) {
       continue;
     }
 
-    memcpy(dmxFrameSnapshot, dmxBuffer[1], 512);
+    const int universe = (INPUT_MODE == "NET") ? 1 : 0;
+    const int chStart = (INPUT_MODE == "NET") ? 0 : 5;
+
+    memcpy(dmxFrameSnapshot, dmxBuffer[universe], 512);
     xSemaphoreGive(xDmxMutex);
 
     
 
-    analogWrite(MODULE_D_PIN_4, dmxFrameSnapshot[0]);
-    analogWrite(MODULE_D_PIN_3, dmxFrameSnapshot[1]);
-    analogWrite(MODULE_D_PIN_2, dmxFrameSnapshot[2]);
-    analogWrite(MODULE_D_PIN_1, dmxFrameSnapshot[3]);
+    analogWrite(MODULE_D_PIN_4, dmxFrameSnapshot[chStart]);
+    analogWrite(MODULE_D_PIN_3, dmxFrameSnapshot[chStart + 1]);
+    analogWrite(MODULE_D_PIN_2, dmxFrameSnapshot[chStart + 2]);
+    analogWrite(MODULE_D_PIN_1, dmxFrameSnapshot[chStart + 3]);
     
 
 
