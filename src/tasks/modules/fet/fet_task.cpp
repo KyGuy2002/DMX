@@ -37,20 +37,20 @@ void fetTask(void *pvParameters) {
     }
 
     const int universe = (INPUT_MODE == "NET") ? 1 : 0;
-    const int chStart = (INPUT_MODE == "NET") ? 0 : 7;
+    const int chStart = (INPUT_MODE == "NET") ? 0 : 7; // Temp make room for 6 channel rockwedge light
 
     memcpy(dmxFrameSnapshot, dmxBuffer[universe], 512);
     xSemaphoreGive(xDmxMutex);
 
-    Serial1.print("DMX Snapshot:");
-    for (int i = 0; i < 20; i++) {
-      char buf[4];
-      // format as 3 characters with leading spaces
-      snprintf(buf, sizeof(buf), "%3d", dmxFrameSnapshot[i]);
-      Serial1.print(" ");
-      Serial1.print(buf);
-    }
-    Serial1.println();
+    // Serial1.print("DMX Snapshot:");
+    // for (int i = 0; i < 20; i++) {
+    //   char buf[4];
+    //   // format as 3 characters with leading spaces
+    //   snprintf(buf, sizeof(buf), "%3d", dmxFrameSnapshot[i]);
+    //   Serial1.print(" ");
+    //   Serial1.print(buf);
+    // }
+    // Serial1.println();
 
     
 
