@@ -18,6 +18,7 @@
 #include "../tasks/artnet/artnet_task.h"
 #include "../tasks/dmx_tx/dmx_tx_task.h"
 #include "../tasks/modules/neo/neo_task.h"
+#include "../tasks/modules/neo/neo_gen_task.h"
 #include "../tasks/modules/fet/fet_task.h"
 #include "../tasks/input/bool_input/bool_input_task.h"
 #include "../tasks/modules/rfid/rfid_task.h"
@@ -60,7 +61,8 @@ void startRegularTasks() {
   if (INPUT_MODE == "NET") createArtnetTask();
   if (INPUT_MODE == "NET") createDmxTxTask(); // Dmx Init handles input already
   createBoolInputTask();
-  // createNeoTask(); // Module C
+  if (INPUT_MODE == "NET") createNeoTask(); // Module C - direct pixel control
+  if (INPUT_MODE == "XLR") createNeoGenTask(); // Module C - gen patterns locally
   createFetTask(); // Module D
   // createRfidTask(); // Module B
   // createSmokeTask(); // Module A
