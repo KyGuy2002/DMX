@@ -39,7 +39,7 @@ void smokeTask(void *pvParameters) {
 
     
 
-    digitalWrite(MODULE_A_PIN_2, dmxFrameSnapshot[4] > 127 ? HIGH : LOW);
+    digitalWrite(MODULE_A_PIN_2, dmxFrameSnapshot[4] > 127 ? HIGH : LOW); // Temp backwards cuz NO/NC wrong
 
     Serial1.print(" ");
     Serial1.println(digitalRead(MODULE_A_PIN_1));

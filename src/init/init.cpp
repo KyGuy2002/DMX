@@ -43,7 +43,7 @@ void initPeripherals() {
   // Order/dependancies handled inside each init func
   createOLEDInitTask();
   createSDInitTask();
-  // createAudioInitTask();
+  if (INPUT_MODE == "NET") createAudioInitTask(); // Temp audio doesn't work with XLR input mode
   if (INPUT_MODE == "NET") createEthernetInitTask();
   createDmxInitTask(); // Handles tx and rx setup
 }
@@ -54,12 +54,12 @@ void startRegularTasks() {
 
   Serial1.println("====Initialization Complete.");
   createOLEDTask();
-  // createMusicTask();
+  if (INPUT_MODE == "NET") createMusicTask(); // Temp audio doesn't work with XLR input mode
   if (INPUT_MODE == "NET") createWebTask();
   if (INPUT_MODE == "NET") createMdnsTask();
   if (INPUT_MODE == "NET") createArtnetTask();
   if (INPUT_MODE == "NET") createDmxTxTask(); // Dmx Init handles input already
-  // createBoolInputTask();
+  createBoolInputTask();
   // createNeoTask(); // Module C
   createFetTask(); // Module D
   // createRfidTask(); // Module B
@@ -95,7 +95,7 @@ void watchdogTask(void *pvParameters) {
 
     // Send success message if everything is done and successful
     if (
-      // initSyncDoneOk(INIT_AUDIO_DONE, INIT_AUDIO_OK) &&
+      (INPUT_MODE != "NET" || initSyncDoneOk(INIT_AUDIO_DONE, INIT_AUDIO_OK)) && // Temp audio doesn't work with XLR input mode
       initSyncDoneOk(INIT_OLED_DONE, INIT_OLED_OK) &&
       (INPUT_MODE != "NET" || initSyncDoneOk(INIT_ETHERNET_DONE, INIT_ETHERNET_OK)) &&
       initSyncDoneOk(INIT_SD_DONE, INIT_SD_OK) &&

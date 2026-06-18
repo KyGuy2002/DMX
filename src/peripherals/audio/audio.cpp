@@ -21,7 +21,6 @@ void createAudioInitTask() {
 
 
 void audioInitTask(void *pvParameters) {
-  Serial1.println("a");
 
 
   // Wait for SD init
@@ -32,8 +31,6 @@ void audioInitTask(void *pvParameters) {
     return;
   }
 
-  Serial1.println("b");
-
 
   auto config = i2s.defaultConfig(TX_MODE);
   config.sample_rate = 48000;
@@ -43,8 +40,6 @@ void audioInitTask(void *pvParameters) {
   config.pin_bck = AUDIO_BCK_PIN;
   config.pin_ws = AUDIO_LCK_PIN;
   config.pin_data = AUDIO_DIN_PIN;
-
-  Serial1.println("c");
   
   if (!i2s.begin(config)) {
     Serial1.println("- [X] Failed to initialize I2S");
@@ -53,13 +48,11 @@ void audioInitTask(void *pvParameters) {
     return;
   }
 
-  Serial1.println("d");
 
   decoder.addNotifyAudioChange(i2s);
   volume.setVolume(DEFAULT_VOLUME);
   decoder.begin();
 
-  Serial1.println("e");
   
   Serial1.println("- [*] I2S Audio initialized successfully.");
   initSyncMarkDone(INIT_AUDIO_DONE, true, INIT_AUDIO_OK);
