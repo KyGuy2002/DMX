@@ -10,3 +10,5 @@
 extern void createNeoTask();
 
 void neoTask(void *pvParameters);
+
+void writeStrip(Adafruit_NeoPixel &strip, int startUniverse, int length, uint8_t dmxFrameSnapshot[8][512]);

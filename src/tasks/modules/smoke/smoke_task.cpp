@@ -34,7 +34,7 @@ void smokeTask(void *pvParameters) {
       continue;
     }
 
-    memcpy(dmxFrameSnapshot, dmxBuffer[2], sizeof(dmxFrameSnapshot));
+    memcpy(dmxFrameSnapshot, dmxBuffer[2], 512);
     xSemaphoreGive(xDmxMutex);
 
     
