@@ -1,31 +1,21 @@
 #include "neo_task.h"
 
 
-Adafruit_NeoPixel strip1(NEO_A_LENGTH, MODULE_A_PIN_1, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip2(NEO_B_LENGTH, MODULE_B_PIN_1, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip3(NEO_C_LENGTH, MODULE_C_PIN_1, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip4(NEO_D_LENGTH, MODULE_D_PIN_1, NEO_GRB + NEO_KHZ800);
+CRGB leds1[NEO_A_LENGTH];
+CRGB leds2[NEO_B_LENGTH];
+CRGB leds3[NEO_C_LENGTH];
+CRGB leds4[NEO_D_LENGTH];
 
 
 void createNeoTask() {
 
   Serial1.println("Neo task created.");
 
-  strip1.begin();
-  strip1.show();
-  strip1.setBrightness(100);
-
-  strip2.begin();
-  strip2.show();
-  strip2.setBrightness(100);
-
-  strip3.begin();
-  strip3.show();
-  strip3.setBrightness(100);
-
-  strip4.begin();
-  strip4.show();
-  strip4.setBrightness(100);
+  FastLED.addLeds<WS2812B, MODULE_C_PIN_3, GRB>(leds1, NEO_A_LENGTH);
+  FastLED.addLeds<WS2812B, MODULE_C_PIN_4, GRB>(leds2, NEO_B_LENGTH);
+  FastLED.addLeds<WS2812B, MODULE_C_PIN_2, GRB>(leds3, NEO_C_LENGTH);
+  FastLED.addLeds<WS2812B, MODULE_C_PIN_1, GRB>(leds4, NEO_D_LENGTH);
+  FastLED.setBrightness(255);
 
 
   xTaskCreate(
@@ -57,20 +47,22 @@ void neoTask(void *pvParameters) {
     }
     xSemaphoreGive(xDmxMutex);
 
-    writeStrip(strip1, NEO_A_START_UNIVERSE, NEO_A_LENGTH, dmxFrameSnapshot);
-    writeStrip(strip2, NEO_B_START_UNIVERSE, NEO_B_LENGTH, dmxFrameSnapshot);
-    writeStrip(strip3, NEO_C_START_UNIVERSE, NEO_C_LENGTH, dmxFrameSnapshot);
-    writeStrip(strip4, NEO_D_START_UNIVERSE, NEO_D_LENGTH, dmxFrameSnapshot);
+    writeStrip(leds1, NEO_A_START_UNIVERSE, NEO_A_LENGTH, dmxFrameSnapshot);
+    writeStrip(leds2, NEO_B_START_UNIVERSE, NEO_B_LENGTH, dmxFrameSnapshot);
+    writeStrip(leds3, NEO_C_START_UNIVERSE, NEO_C_LENGTH, dmxFrameSnapshot);
+    writeStrip(leds4, NEO_D_START_UNIVERSE, NEO_D_LENGTH, dmxFrameSnapshot);
+
+    FastLED.show();
 
 
     // Yield briefly before preparing the next frame.
-    vTaskDelay(pdMS_TO_TICKS(1));
+    vTaskDelay(pdMS_TO_TICKS(10));
     
   }
 }
 
 
-void writeStrip(Adafruit_NeoPixel &strip, int startUniverse, int length, uint8_t dmxFrameSnapshot[8][512]) {
+void writeStrip(CRGB *strip, int startUniverse, int length, uint8_t dmxFrameSnapshot[8][512]) {
 
   // Write Neopixel data
   for (int i = 0; i < length; i++) {
@@ -82,9 +74,9 @@ void writeStrip(Adafruit_NeoPixel &strip, int startUniverse, int length, uint8_t
       idx = idx - 512;
     }
 
-    strip.setPixelColor(i, dmxFrameSnapshot[universe][idx], dmxFrameSnapshot[universe][idx + 1], dmxFrameSnapshot[universe][idx + 2]);
+    strip[i].r = dmxFrameSnapshot[universe][idx++];
+    strip[i].g = dmxFrameSnapshot[universe][idx++];
+    strip[i].b = dmxFrameSnapshot[universe][idx++];
   }
-
-  strip.show();
 
 }

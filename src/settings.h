@@ -13,19 +13,19 @@ static const int UNIVERSE_COUNT = 10; // Number of DMX universes to support
 
 
 // NOTE: MUST BE IN UNIVERSE ORDER AND CONSECUTIVE
-static const int NEO_A_LENGTH = 1;
+static const int NEO_A_LENGTH = 100;
 static const int NEO_A_START_CHANNEL = 0;
 static const int NEO_A_START_UNIVERSE = 2;
 
-static const int NEO_B_LENGTH = 1;
+static const int NEO_B_LENGTH = 100;
 static const int NEO_B_START_CHANNEL = 0;
 static const int NEO_B_START_UNIVERSE = 4;
 
-static const int NEO_C_LENGTH = 1;
+static const int NEO_C_LENGTH = 100;
 static const int NEO_C_START_CHANNEL = 0;
 static const int NEO_C_START_UNIVERSE = 6;
 
-static const int NEO_D_LENGTH = 300;
+static const int NEO_D_LENGTH = 100;
 static const int NEO_D_START_CHANNEL = 0;
 static const int NEO_D_START_UNIVERSE = 8;
 
