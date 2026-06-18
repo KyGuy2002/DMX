@@ -32,6 +32,7 @@ void createNeoTask() {
 
 void neoTask(void *pvParameters) {
   static uint8_t dmxFrameSnapshot[8][512];
+  static uint8_t hue = 0;
 
   while (1) {
 
@@ -47,16 +48,29 @@ void neoTask(void *pvParameters) {
     }
     xSemaphoreGive(xDmxMutex);
 
-    writeStrip(leds1, NEO_A_START_UNIVERSE, NEO_A_LENGTH, dmxFrameSnapshot);
-    writeStrip(leds2, NEO_B_START_UNIVERSE, NEO_B_LENGTH, dmxFrameSnapshot);
-    writeStrip(leds3, NEO_C_START_UNIVERSE, NEO_C_LENGTH, dmxFrameSnapshot);
-    writeStrip(leds4, NEO_D_START_UNIVERSE, NEO_D_LENGTH, dmxFrameSnapshot);
+    
 
-    FastLED.show();
+for (int i = 0; i < NEO_A_LENGTH; i++) {
+    leds1[i] = CHSV(hue + i, 255, 255);
+}
 
+for (int i = 0; i < NEO_B_LENGTH; i++) {
+    leds2[i] = CHSV(hue + i, 255, 255);
+}
 
-    // Yield briefly before preparing the next frame.
-    vTaskDelay(pdMS_TO_TICKS(10));
+for (int i = 0; i < NEO_C_LENGTH; i++) {
+    leds3[i] = CHSV(hue + i, 255, 255);
+}
+
+for (int i = 0; i < NEO_D_LENGTH; i++) {
+    leds4[i] = CHSV(hue + i, 255, 255);
+}
+
+FastLED.show();
+
+hue++;
+
+vTaskDelay(pdMS_TO_TICKS(20));   // ~50 FPS
     
   }
 }
