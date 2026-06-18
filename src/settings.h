@@ -28,7 +28,7 @@ static const int NEO_B_LENGTH = 100;
 static const int NEO_B_START_CHANNEL = 0;
 static const int NEO_B_START_UNIVERSE = 4;
 
-static const int NEO_C_LENGTH = 15;
+static const int NEO_C_LENGTH = 300;
 static const int NEO_C_START_CHANNEL = 0;
 static const int NEO_C_START_UNIVERSE = 6;
 
