@@ -1,7 +1,7 @@
 #include "neo_task.h"
 
 
-Adafruit_NeoPixel strip1(40, MODULE_C_PIN_1, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip1(NEO_LENGTH, MODULE_C_PIN_1, NEO_GRB + NEO_KHZ800);
 
 
 void createNeoTask() {
@@ -36,12 +36,12 @@ void neoTask(void *pvParameters) {
       continue;
     }
 
-    memcpy(dmxFrameSnapshot, dmxBuffer[1], 215);
+    memcpy(dmxFrameSnapshot, dmxBuffer[1], sizeof(dmxFrameSnapshot));
     xSemaphoreGive(xDmxMutex);
 
     Serial1.println(dmxFrameSnapshot[0]);
     // Write Neopixel data
-    for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < NEO_LENGTH; i++) {
       uint16_t idx = i * 3;
       strip1.setPixelColor(i, dmxFrameSnapshot[idx], dmxFrameSnapshot[idx + 1], dmxFrameSnapshot[idx + 2]);
     }
