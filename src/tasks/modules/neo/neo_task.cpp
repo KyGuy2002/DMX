@@ -1,16 +1,14 @@
 #include "neo_task.h"
 
 
-Adafruit_NeoPixel strip1(NEO_LENGTH, MODULE_C_PIN_1, NEO_GRB + NEO_KHZ800);
-
+CRGB leds[170];
 
 void createNeoTask() {
 
   Serial1.println("Neo task created.");
 
-  strip1.begin();
-  strip1.show();
-  strip1.setBrightness(100);
+  FastLED.addLeds<WS2812B, MODULE_C_PIN_1, GRB>(leds, 170);
+  FastLED.setBrightness(255);
 
 
   xTaskCreate(
@@ -39,14 +37,16 @@ void neoTask(void *pvParameters) {
     memcpy(dmxFrameSnapshot, dmxBuffer[1], sizeof(dmxFrameSnapshot));
     xSemaphoreGive(xDmxMutex);
 
-    Serial1.println(dmxFrameSnapshot[0]);
     // Write Neopixel data
-    for (int i = 0; i < NEO_LENGTH; i++) {
+    for (int i = 0; i < 170; i++) {
       uint16_t idx = i * 3;
-      strip1.setPixelColor(i, dmxFrameSnapshot[idx], dmxFrameSnapshot[idx + 1], dmxFrameSnapshot[idx + 2]);
+      leds[i].r = dmxFrameSnapshot[idx++];
+      leds[i].g = dmxFrameSnapshot[idx++];
+      leds[i].b = dmxFrameSnapshot[idx++];
     }
 
-    strip1.show();
+    
+    FastLED.show();
 
 
     // Yield briefly before preparing the next frame.
