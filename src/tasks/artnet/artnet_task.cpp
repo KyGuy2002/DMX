@@ -38,7 +38,7 @@ void createArtnetTask() {
     "ArtNet",         // Task name
     AUDIO_TASK_STACK_SIZE / sizeof(StackType_t), // Stack size (words; bytes configured in rtos_config)
     NULL,                     // Parameters
-    2,      // Priority
+    1,      // Priority
     NULL
   );
   
@@ -47,38 +47,32 @@ void createArtnetTask() {
 
 void artnetTask(void *pvParameters) {
   while (1) {
-
-    if (xSemaphoreTake(xEthernetMutex, portMAX_DELAY) != pdTRUE) {
-      Serial1.println("[Artnet Task] Failed to take Ethernet mutex!");
-      vTaskDelay(pdMS_TO_TICKS(10));
-      continue;
+    if (xSemaphoreTake(xEthernetMutex, pdMS_TO_TICKS(1)) == pdTRUE) {
+      artnet.parse();
+      xSemaphoreGive(xEthernetMutex);
     }
 
-    artnet.parse();
-
-    xSemaphoreGive(xEthernetMutex);
-
-    // Briefly block to allow lower-priority networking tasks to run
-    vTaskDelay(pdMS_TO_TICKS(20));
-    
+    taskYIELD();   // not 20ms delay
   }
 }
 
-void artnetCallback(const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
+void artnetCallback(const uint8_t *data, uint16_t size,
+                    const ArtDmxMetadata &metadata,
+                    const ArtNetRemoteInfo &remote) {
 
-  // Skip if mutex not available
-  if (xSemaphoreTake(xDmxMutex, portMAX_DELAY) != pdTRUE) {
-    vTaskDelay(pdMS_TO_TICKS(10));
-    Serial1.println("==== Failed to take DMX mutex in Art-Net callback");
-    return;
+  if (metadata.universe >= UNIVERSE_COUNT) return;
+
+  if (xSemaphoreTake(xDmxMutex, 0) != pdTRUE) {
+    return;   // drop packet rather than blocking Art-Net receive
   }
 
-  if (metadata.universe < UNIVERSE_COUNT) {
-    memset(dmxBuffer[metadata.universe], 0, 512); // Clear existing data
-    const uint16_t copySize = size > 512 ? 512 : size; // Correct incoming data size if larger than DMX buffer
-    memcpy(dmxBuffer[metadata.universe], data, copySize);
+  const uint16_t copySize = size > 512 ? 512 : size;
+
+  memcpy(dmxBuffer[metadata.universe], data, copySize);
+
+  if (copySize < 512) {
+    memset(dmxBuffer[metadata.universe] + copySize, 0, 512 - copySize);
   }
 
   xSemaphoreGive(xDmxMutex);
-
 }
