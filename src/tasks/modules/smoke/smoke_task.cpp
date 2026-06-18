@@ -7,7 +7,7 @@ void createSmokeTask() {
 
   Serial1.println("Smoke task created.");
 
-  pinMode(MODULE_A_PIN_1, INPUT);
+  pinMode(MODULE_A_PIN_1, INPUT_PULLUP);
   pinMode(MODULE_A_PIN_2, OUTPUT);
 
 
@@ -34,12 +34,15 @@ void smokeTask(void *pvParameters) {
       continue;
     }
 
-    memcpy(dmxFrameSnapshot, dmxBuffer[2], 512);
+    memcpy(dmxFrameSnapshot, dmxBuffer[1], 512);
     xSemaphoreGive(xDmxMutex);
 
     
 
     digitalWrite(MODULE_A_PIN_2, dmxFrameSnapshot[4] > 127 ? HIGH : LOW);
+
+    Serial1.print(" ");
+    Serial1.println(digitalRead(MODULE_A_PIN_1));
     
 
 

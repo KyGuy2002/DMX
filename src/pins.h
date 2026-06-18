@@ -78,8 +78,8 @@ static const int MODULE_B_PIN_A4 = 41; // Analog
 
 // Module A [Analog]
 static const int MODULE_A_PIN_3 = 2;
-static const int MODULE_A_PIN_2 = 3;
-static const int MODULE_A_PIN_1 = 4;
+static const int MODULE_A_PIN_2 = 3; // Smoke Relay Output
+static const int MODULE_A_PIN_1 = 4; // Smoke Ready Input
 static const int MODULE_A_PIN_A4 = 40; // Analog
 
 
