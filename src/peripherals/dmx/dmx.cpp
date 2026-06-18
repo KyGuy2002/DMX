@@ -12,36 +12,23 @@ void createDmxInitTask() {
         "Dmx Init",              // Task name
         2048 / sizeof(StackType_t), // Stack size (words; 2048-byte intent)
         NULL,                     // Parameters
-        3,                        // Priority
+        2,                        // Priority
         NULL                      // Task handle
     );
 }
 
 
-void dmxReadTask(void *pvParameters) {
-    while (1) {
-        dmxInput.read_async(dmxBuffer[0]);
-        vTaskDelay(pdMS_TO_TICKS(1));
-    }
-}
-
-
 void dmxInitTask(void *pvParameters) {
+    pinMode(DMX_MODE_PIN, OUTPUT);
 
 
     if (INPUT_MODE == "XLR") {
+        digitalWrite(DMX_MODE_PIN, LOW); // Set to input mode
         dmxInput.begin(DMX_RX_PIN, 0, 512);
-
-        xTaskCreate(
-            dmxReadTask,
-            "Dmx Read",
-            2048 / sizeof(StackType_t),
-            NULL,
-            1,
-            NULL
-        );
+        dmxInput.read_async(dmxBuffer[0]);
     }
     else if (INPUT_MODE == "NET") {
+        digitalWrite(DMX_MODE_PIN, HIGH); // Set to output mode
         dmxOutput.begin(DMX_TX_PIN);
     }
 
