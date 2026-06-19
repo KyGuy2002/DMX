@@ -91,10 +91,10 @@ void tickChase(int startChannel, int noPixels, int& ticksSinceLastGlowWireUpdate
   // Width
   const int positiveCount = map(dotWidth, 0, 255, 1, spacing);
 
-  Serial1.print("skipticks: ");
-  Serial1.print(skipTicks);
-  Serial1.print("   -   skippixels: ");
-  Serial1.println(skipPixels);
+  // Serial1.print("skipticks: ");
+  // Serial1.print(skipTicks);
+  // Serial1.print("   -   skippixels: ");
+  // Serial1.println(skipPixels);
 
 
   // Set all background color
