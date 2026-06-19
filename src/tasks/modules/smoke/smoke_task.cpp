@@ -34,12 +34,12 @@ void smokeTask(void *pvParameters) {
       continue;
     }
 
-    memcpy(dmxFrameSnapshot, dmxBuffer[1], 512);
+    memcpy(dmxFrameSnapshot, dmxBuffer[0], 512);
     xSemaphoreGive(xDmxMutex);
 
     
 
-    digitalWrite(MODULE_A_PIN_2, dmxFrameSnapshot[4] > 127 ? HIGH : LOW); // Temp backwards cuz NO/NC wrong
+    digitalWrite(MODULE_A_PIN_2, dmxFrameSnapshot[19] > 127 ? HIGH : LOW); // Temp backwards cuz NO/NC wrong
 
     Serial1.print(" ");
     Serial1.println(digitalRead(MODULE_A_PIN_1));

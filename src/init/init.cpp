@@ -66,7 +66,7 @@ void startRegularTasks() {
   if (INPUT_MODE == "XLR") createNeoGenTask(); // Module C - gen patterns locally
   createFetTask(); // Module D
   // createRfidTask(); // Module B
-  // createSmokeTask(); // Module A
+  createSmokeTask(); // Module A
 
 
 }
