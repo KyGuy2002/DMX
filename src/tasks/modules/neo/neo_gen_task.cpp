@@ -41,7 +41,7 @@ void neoGenTask(void *pvParameters) {
     memcpy(dmxFrameSnapshot, dmxBuffer[0], 512);
     xSemaphoreGive(xDmxMutex);
 
-    tickChase(11, NEO_C_LENGTH, tickCtr, curPxl, dmxFrameSnapshot);
+    tickChase(10, NEO_C_LENGTH, tickCtr, curPxl, dmxFrameSnapshot);
 
     strip.show();
 

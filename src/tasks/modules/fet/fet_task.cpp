@@ -37,7 +37,7 @@ void fetTask(void *pvParameters) {
     }
 
     const int universe = (INPUT_MODE == "NET") ? 1 : 0;
-    const int chStart = (INPUT_MODE == "NET") ? 0 : 7; // Temp make room for 6 channel rockwedge light
+    const int chStart = (INPUT_MODE == "NET") ? 0 : 6; // Temp make room for 6 channel rockwedge light
 
     memcpy(dmxFrameSnapshot, dmxBuffer[universe], 512);
     xSemaphoreGive(xDmxMutex);
