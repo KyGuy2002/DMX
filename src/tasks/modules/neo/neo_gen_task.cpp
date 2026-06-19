@@ -53,41 +53,60 @@ void neoGenTask(void *pvParameters) {
 
 void tickChase(int startChannel, int noPixels, int& ticksSinceLastGlowWireUpdate, int& currentPix, uint8_t dmx[512]) {
 
-  // Speed
-  // int ticksBetween = ((1 - (dmx[startChannel + 3] / 255.0f)) * 5) + 0.01; // Speed from 0 ticks to 15 ticks between updates
-  int ticksBetween = 1;
-  if (ticksSinceLastGlowWireUpdate < ticksBetween) {
-    ticksSinceLastGlowWireUpdate++;
-    return;
-  }
-  ticksSinceLastGlowWireUpdate = 0;
-
   // Read params
   int dotRed = dmx[startChannel];
   int dotGreen = dmx[startChannel + 1];
   int dotBlue = dmx[startChannel + 2];
   int dotSpeed = dmx[startChannel + 3];
   int dotCount = ((dmx[startChannel + 4] / 255.0f) * 19) + 1; // Ensure at least 1 dot
-  int backRed = dmx[startChannel + 5];
-  int backGreen = dmx[startChannel + 6];
-  int backBlue = dmx[startChannel + 7];
+  int dotWidth = dmx[startChannel + 5];
+  int backRed = dmx[startChannel + 6];
+  int backGreen = dmx[startChannel + 7];
+  int backBlue = dmx[startChannel + 8];
 
+
+  // Speed settings
+  const int MAX_SKIP_TICKS = 25; // 1 sec between moves at lowest speed
+  const int MAX_SKIP_PIXELS = 5; // moves 200 pixels per second at highest speed
+  const int MIDPOINT = 90;
+
+  int skipTicks = 0;
+  int skipPixels = 0;
+  if (dotSpeed < MIDPOINT) skipTicks = map(dotSpeed, 0, MIDPOINT - 1, MAX_SKIP_TICKS, 0);
+  else if (dotSpeed > MIDPOINT) skipPixels = map(dotSpeed, MIDPOINT + 1, 254, 0, MAX_SKIP_PIXELS);
+
+  // Slower - skip movements
+  if (ticksSinceLastGlowWireUpdate++ < skipTicks) {
+    return;
+  }
+  ticksSinceLastGlowWireUpdate = 0;
+
+  // Faster - skip pixels
   const int spacing = (noPixels / dotCount);
+  currentPix += 1 + skipPixels;
+  if (currentPix >= spacing) {
+    currentPix = 0;
+  }
+
+  // Width
+  const int positiveCount = map(dotWidth, 0, 255, 1, spacing);
+
+  Serial1.print("skipticks: ");
+  Serial1.print(skipTicks);
+  Serial1.print("   -   skippixels: ");
+  Serial1.println(skipPixels);
+
 
   // Set all background color
   for (uint16_t i = 0; i < noPixels; i++) {
-    // leds[i] = CRGB(backRed, backGreen, backBlue);
     strip.setPixelColor(i, strip.Color(backRed, backGreen, backBlue));
   }
 
   for (uint16_t i = 0; i < dotCount; i++) {
     int pix = (currentPix + i * spacing) % noPixels;
-    // leds[pix] = CRGB(dotRed, dotGreen, dotBlue);
-    strip.setPixelColor(pix, strip.Color(dotRed, dotGreen, dotBlue));
-  }
-
-  if (currentPix++ >= spacing) {
-    currentPix = 0;
+    for (int w = 0; w < positiveCount; w++) {
+      strip.setPixelColor(pix + w, strip.Color(dotRed, dotGreen, dotBlue));
+    }
   }
 
 }
