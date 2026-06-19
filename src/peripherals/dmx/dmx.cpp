@@ -25,7 +25,6 @@ void dmxInitTask(void *pvParameters) {
     if (INPUT_MODE == "XLR") {
         digitalWrite(DMX_MODE_PIN, LOW); // Set to input mode
         dmxInput.begin(DMX_RX_PIN, 0, 512);
-        dmxInput.read_async(dmxBuffer[0]);
     }
     else if (INPUT_MODE == "NET") {
         digitalWrite(DMX_MODE_PIN, HIGH); // Set to output mode

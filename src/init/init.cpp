@@ -17,6 +17,7 @@
 #include "../tasks/mdns/mdns_task.h"
 #include "../tasks/artnet/artnet_task.h"
 #include "../tasks/dmx_tx/dmx_tx_task.h"
+#include "../tasks/dmx_rx/dmx_rx_task.h"
 #include "../tasks/modules/neo/neo_task.h"
 #include "../tasks/modules/neo/neo_gen_task.h"
 #include "../tasks/modules/fet/fet_task.h"
@@ -41,12 +42,11 @@ void initPeripherals() {
 
   createWatchdogTask();
 
-  // Order/dependancies handled inside each init func
   createOLEDInitTask();
   createSDInitTask();
   if (INPUT_MODE == "NET") createAudioInitTask(); // Temp audio doesn't work with XLR input mode
   if (INPUT_MODE == "NET") createEthernetInitTask();
-  createDmxInitTask(); // Handles tx and rx setup
+  createDmxInitTask();
 }
 
 
@@ -59,7 +59,8 @@ void startRegularTasks() {
   if (INPUT_MODE == "NET") createWebTask();
   if (INPUT_MODE == "NET") createMdnsTask();
   if (INPUT_MODE == "NET") createArtnetTask();
-  if (INPUT_MODE == "NET") createDmxTxTask(); // Dmx Init handles input already
+  if (INPUT_MODE == "NET") createDmxTxTask();
+  if (INPUT_MODE == "XLR") createDmxRxTask();
   createBoolInputTask();
   if (INPUT_MODE == "NET") createNeoTask(); // Module C - direct pixel control
   if (INPUT_MODE == "XLR") createNeoGenTask(); // Module C - gen patterns locally
