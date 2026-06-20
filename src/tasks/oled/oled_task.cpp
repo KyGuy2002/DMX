@@ -164,8 +164,17 @@ void oledTask(void *pvParameters) {
       
       oledDrawCenterText(u8g2, "ProjectDMX Home", 128, 20);
       // oledDrawCenterText(u8g2, Ethernet.localIP().toString().c_str(), 128, 45);
-      oledDrawCenterText(u8g2, MDNS_NAME, 128, 56);
+      if (INPUT_MODE == "NET") oledDrawCenterText(u8g2, MDNS_NAME, 128, 56);
+      
+      const int smokeReady = digitalRead(MODULE_A_PIN_1);
 
+      String smokeText;
+      if (smokeReady == LOW) {
+        smokeText = "Smoke: Ready";
+      } else {
+        smokeText = "Smoke: Not Ready";
+      }
+      oledDrawCenterText(u8g2, smokeText.c_str(), 128, 60);
     }
     u8g2.sendBuffer();
 

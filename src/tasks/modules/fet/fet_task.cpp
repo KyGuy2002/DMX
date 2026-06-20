@@ -42,15 +42,15 @@ void fetTask(void *pvParameters) {
     memcpy(dmxFrameSnapshot, dmxBuffer[universe], 512);
     xSemaphoreGive(xDmxMutex);
 
-    Serial1.print("DMX Snapshot:");
-    for (int i = 0; i < 20; i++) {
-      char buf[4];
-      // format as 3 characters with leading spaces
-      snprintf(buf, sizeof(buf), "%3d", dmxFrameSnapshot[i]);
-      Serial1.print(" ");
-      Serial1.print(buf);
-    }
-    Serial1.println();
+    // Serial1.print("DMX Snapshot:");
+    // for (int i = 0; i < 20; i++) {
+    //   char buf[4];
+    //   // format as 3 characters with leading spaces
+    //   snprintf(buf, sizeof(buf), "%3d", dmxFrameSnapshot[i]);
+    //   Serial1.print(" ");
+    //   Serial1.print(buf);
+    // }
+    // Serial1.println();
 
     
 
